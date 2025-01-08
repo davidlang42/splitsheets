@@ -9,17 +9,18 @@ const DISCOVERY_DOC = 'https://script.googleapis.com/$discovery/rest?version=v1'
 const SCOPES = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets';
 
 let tokenClient;
-let gapiInited = false;
-let gisInited = false;
 
-document.getElementById('authorize_button').style.visibility = 'hidden';
-document.getElementById('signout_button').style.visibility = 'hidden';
-document.getElementById('call_button').style.visibility = 'hidden';
+function onLoad() {
+    document.getElementById('authorize_button').style.visibility = 'hidden';
+    document.getElementById('signout_button').style.visibility = 'hidden';
+    document.getElementById('call_button').style.visibility = 'hidden';
 
-/**
- * Callback after api.js is loaded.
- */
-function gapiLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: '', // set later
+    });
+
     gapi.load('client', initializeGapiClient);
 }
 
@@ -32,30 +33,7 @@ async function initializeGapiClient() {
         apiKey: API_KEY,
         discoveryDocs: [DISCOVERY_DOC],
     });
-    gapiInited = true;
-    maybeEnableButtons();
-}
-
-/**
- * Callback after Google Identity Services are loaded.
- */
-function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: '', // set later
-    });
-    gisInited = true;
-    maybeEnableButtons();
-}
-
-/**
- * Enables user interaction after all libraries are loaded.
- */
-function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-        document.getElementById('authorize_button').style.visibility = 'visible';
-    }
+    document.getElementById('authorize_button').style.visibility = 'visible';
 }
 
 /**
