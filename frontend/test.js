@@ -34,6 +34,17 @@ async function initializeGapiClient() {
         discoveryDocs: [DISCOVERY_DOC],
     });
     document.getElementById('authorize_button').style.visibility = 'visible';
+    let stored = JSON.parse(window.localStorage.getItem("stored_token"));
+    if (!stored) {
+        alert('no stored');
+    } else {
+        gapi.client.setToken(stored);
+        alert('stored: ' + JSON.stringify(stored));
+
+        document.getElementById('signout_button').style.visibility = 'visible';
+        document.getElementById('call_button').style.visibility = 'visible';
+        document.getElementById('authorize_button').innerText = 'Refresh';
+    }
 }
 
 /**
@@ -47,6 +58,14 @@ function handleAuthClick() {
         document.getElementById('signout_button').style.visibility = 'visible';
         document.getElementById('call_button').style.visibility = 'visible';
         document.getElementById('authorize_button').innerText = 'Refresh';
+
+        let token = gapi.client.getToken();
+        if (!token) {
+            alert('no token');
+        } else {
+            window.localStorage.setItem("stored_token", JSON.stringify(token));
+            alert('token: ' + JSON.stringify(token));
+        }
     };
 
     tokenClient.requestAccessToken({prompt: ''});
@@ -58,6 +77,7 @@ function handleAuthClick() {
 function handleSignoutClick() {
     const token = gapi.client.getToken();
     if (token !== null) {
+        window.localStorage.removeItem("stored_token");
         google.accounts.oauth2.revoke(token.access_token);
         gapi.client.setToken('');
         document.getElementById('content').innerText = '';
