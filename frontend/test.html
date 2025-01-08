@@ -123,7 +123,7 @@
          * Load the API and make an API call.  Display the results on the screen.
          */
         function callScriptFunction() {
-            const scriptId = 'AKfycbyPIffSe9ItyttU9tgUi5jaAsT8Z9unOXoxsAf_TxxqO19rBVS0ZldXcu0gklnWT89VOw'; // actually deployment ID
+            const scriptId = 'AKfycbyPIffSe9ItyttU9tgUi5jaAsT8Z9unOXoxsAf_TxxqO19rBVS0ZldXcu0gklnWT89VOw'; // actually deployment ID (if devMode = false)
 
             // Call the Apps Script API run method
             //   'scriptId' is the URL parameter that states what script to run
@@ -134,6 +134,11 @@
                 'scriptId': scriptId,
                 'resource': {
                     'function': 'listSheets',
+                    // "parameters": [
+                    //   folderId,
+                    //   MAX_SIZE
+                    // ],
+                    // "devMode": true // if true, scriptId is file ID, if false scriptId is deploymentId
                 },
                 }).then(function(resp) {
                 const result = resp.result;
