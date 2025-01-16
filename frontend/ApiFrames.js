@@ -1,4 +1,5 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp5nL9DhJaNiKgviIn4kA3jZI6yztz6mRWBGHFIPOxlu3xMsaK/exec";
+const IFRAME_PREFIX = "apiFrame_";
 
 let api = {
     login: (callback) => sendRequest('L', [], callback),
@@ -25,7 +26,7 @@ function sendRequest(request, parameters, callback, id) {
     } else {
         // send a new request
         requestCallbacks[id] = callback;
-        const apiframe_id = "apiFrame_" + id;
+        const apiframe_id = IFRAME_PREFIX + id;
         const apiframe = document.createElement("iframe");
         apiframe.id = apiframe_id;
         apiframe.style = "position: absolute; width:0; height:0; border:0;";
@@ -59,13 +60,13 @@ function handleResponse(id, response) {
     const callback = requestCallbacks[id];
     if (callback) {
         delete requestCallbacks[id];
-        const apiframe_id = "apiFrame_" + id;
+        const apiframe_id = IFRAME_PREFIX + id;
         document.getElementById(apiframe_id).remove();
         if (response) {
             callback(response);
         } else {
-            console.log("No message received, the user probably isn't logged in.");
-            //TODO show login screen
+            // No message received, redirect to login
+            window.top.location.href = BACKEND_URL;
         }
     }
 }

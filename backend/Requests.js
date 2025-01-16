@@ -5,12 +5,11 @@ function login() {
 // returns known sheets as {id: name}
 function listSheets() {
   var p = PropertiesService.getUserProperties();
+  if (!p.getProperty("TEST-ID")) {
+    //TODO remove
+    addSheet("TEST-ID", "Test Name");
+  }
   return p.getProperties();
-}
-
-//TODO remove
-function addTest() {
-  addSheet("TEST-ID", "Test Name");
 }
 
 // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name
