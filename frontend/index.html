@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Google Apps Script API Quickstart</title>
+    <title>SplitSheets</title>
     <meta charset="utf-8" />
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
-    <script src="test.js"></script>
+    <script src="ApiFrames.js"></script>
+    <script>
+      function clickButton() {
+        document.getElementById('content').innerText = "Loading...";
+        api.listSheets(function(sheets) {
+          document.getElementById('content').innerHTML = JSON.stringify(sheets);
+        });
+      }
+    </script>
   </head>
-  <body onload="onLoad()">
-    <p>Google Apps Script API Quickstart</p>
-    
-    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
-    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    <button id="call_button" onclick="callScriptFunction()">Call Script Function</button>
-
-    <pre id="content" style="white-space: pre-wrap;"></pre>
+  <body>
+    <input type="button" onclick="clickButton()" value="Test Api"/>
+    <div id="content"></div>
   </body>
 </html>

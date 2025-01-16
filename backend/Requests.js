@@ -4,6 +4,11 @@ function listSheets() {
   return p.getProperties();
 }
 
+//TODO remove
+function addTest() {
+  addSheet("TEST-ID", "Test Name");
+}
+
 // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name
 function addSheet(id, name) {
   if (!name) {
