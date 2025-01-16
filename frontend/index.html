@@ -3,11 +3,69 @@
   <head>
     <title>SplitSheets</title>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="SplitSheets.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <!--script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="ApiFrames.js"></script>
     <script src="SplitSheets.js"></script>
   </head>
   <body onload="onLoad()">
-    <input type="button" onclick="clickButton()" value="Test Api"/>
-    <div id="content"></div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light container-fluid sticky-top position-fixed">
+      <h3 class="font-weight-light text-black" style="display: inline-block;">SplitSheets</h3>&nbsp;&nbsp;&nbsp;
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul id="sheet_list" class="navbar-nav ml-auto my-2 my-sm-0">Loading sheets...</ul>&nbsp;
+        <button class="nav-item btn btn-primary btn-sm my-2 my-sm-0" onClick="viewAdd()">Add Transaction</button>&nbsp;
+        <button class="nav-item btn btn-secondary btn-sm my-2 my-sm-0" onClick="viewManage(this)">Manage Sheets</button>
+      </div>
+    </nav>
+    <div id="ui_add" class="container-fluid ui-view">
+      <p>Add Transaction</p>
+    </div>
+    <div id="ui_manage" class="container-fluid ui-view" style="display: none;">
+      <p>Manage Sheets</p>
+    </div>
+    <div id="ui_balance" class="container-fluid ui-view" style="display: none;">
+      <p>Balances</p>
+    </div>
+        <!--
+          <div class="row flex-row flex-nowrap py-3">
+            <? for(var list of board.properties.lists) { ?>
+            <div class="col-12 col-sm-6 col-md-4<?= board.properties.lists.length > 3 ? " col-lg-3" : "" ?><?= board.properties.lists.length >= 6 ? " col-xl-2" : "" ?><?= board.properties.fit_columns ? " col-fit" : "" ?>">
+                <div class="card bg-light">
+                    <div class="list-border card-body">
+                        <div>
+                        <h6 class="card-title text-uppercase text-truncate py-2" style="display: inline-block;"><?= list ?></h6>
+                        <? if (list == board.properties.list_exit) { ?>
+                        <div class="float-right">
+                          <button type="button" class="btn btn-warning" id="exit_remove_dates" onClick="removeDueDatesCompletedAsync();">Dates</button>
+                          <button type="button" class="btn btn-success" id="exit_clear" onClick="clearCompletedAsync();">Clear</button>
+                        </div>
+                        <? } else { ?>
+                        <div class="float-right">
+                          <button type="button" id="dropdown_<?= list ?>" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">↕</button>
+                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown_<?= list ?>">
+                            <a class="dropdown-item" onClick="sortListAsync('<?= list ?>','title')">Title</a>
+                            <a class="dropdown-item" onClick="sortListAsync('<?= list ?>','due')">Due date</a>
+                            <a class="dropdown-item" onClick="sortListAsync('<?= list ?>','numeric')">Numeric prefix</a>
+                            <a class="dropdown-item" onClick="sortListAsync('<?= list ?>','recent')">Recently changed</a>
+                          </div>
+                          <button class="btn btn-<?= list == board.properties.list_entry ? "primary" : "secondary" ?> btn-sm" data-toggle="modal" data-target="#editDialog" data-list="<?= list ?>"<?!= list == board.properties.list_entry ? ' id="add_to_list_entry"' : '' ?>>+</button>
+                        </div>
+                        <? } ?>
+                        </div>
+                        <div class="items border border-light overflow-auto<?= list == board.properties.list_entry ? " list_entry" : "" ?><?= list == board.properties.list_exit ? " list_exit" : "" ?>" id="<?= list ?>" style="max-height: calc(100vh - 200px);">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <? } ?>
+        </div>
+        -->
   </body>
 </html>
