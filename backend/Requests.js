@@ -9,7 +9,7 @@ function listSheets() {
   return p.getProperties();
 }
 
-// adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name
+// adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
 function addSheet(sheet_id, name) {
   if (!name) {
     var sheet = openSheet(sheet_id);
@@ -17,22 +17,24 @@ function addSheet(sheet_id, name) {
   }
   var p = PropertiesService.getUserProperties();
   p.setProperty(sheet_id, name);
+  return listSheets();
 }
 
-// removes a sheet from the list of known sheets
+// removes a sheet from the list of known sheets, and returns the updated list of sheets
 function removeSheet(sheet_id) {
   var p = PropertiesService.getUserProperties();
   p.deleteProperty(sheet_id);
+  return listSheets();
 }
 
-// creates a new sheet from the template, adds it to the list of known sheets, and returns its id
+// creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
 function createSheet(name) {
   var template = DriveApp.getFileById(TEMPLATE_ID);
   var user_root = DriveApp.getRootFolder();
   var sheet = template.makeCopy(name, user_root);
   var sheet_id = sheet.getId();
   addSheet(sheet_id, name);
-  return sheet_id;
+  return listSheets();
 }
 
 // append a new cost row to the given sheet

@@ -9,6 +9,7 @@ function doGet(e) {
   } else {
     // apiFrame request
     let id = e.parameter.id;
+    let p = e.parameters.p;
     switch(e.parameter.r) {
       case "login":
         return apiFrame(id, () => login());
