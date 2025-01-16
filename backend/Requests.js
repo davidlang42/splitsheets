@@ -1,3 +1,4 @@
+// returns the email of the current user
 function login() {
   return Session.getActiveUser().getEmail();
 }
@@ -5,27 +6,23 @@ function login() {
 // returns known sheets as {id: name}
 function listSheets() {
   var p = PropertiesService.getUserProperties();
-  if (!p.getProperty("TEST-ID")) {
-    //TODO remove
-    addSheet("TEST-ID", "Test Name");
-  }
   return p.getProperties();
 }
 
 // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name
-function addSheet(id, name) {
+function addSheet(sheet_id, name) {
   if (!name) {
-    var sheet = openSheet(id);
+    var sheet = openSheet(sheet_id);
     name = sheet.getName();
   }
   var p = PropertiesService.getUserProperties();
-  p.setProperty(id, name);
+  p.setProperty(sheet_id, name);
 }
 
 // removes a sheet from the list of known sheets
-function removeSheet(id) {
+function removeSheet(sheet_id) {
   var p = PropertiesService.getUserProperties();
-  p.deleteProperty(id);
+  p.deleteProperty(sheet_id);
 }
 
 // creates a new sheet from the template, adds it to the list of known sheets, and returns its id
@@ -33,9 +30,9 @@ function createSheet(name) {
   var template = DriveApp.getFileById(TEMPLATE_ID);
   var user_root = DriveApp.getRootFolder();
   var sheet = template.makeCopy(name, user_root);
-  var id = sheet.getId();
-  addSheet(id, name);
-  return id;
+  var sheet_id = sheet.getId();
+  addSheet(sheet_id, name);
+  return sheet_id;
 }
 
 // append a new cost row to the given sheet

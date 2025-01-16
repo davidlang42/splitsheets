@@ -10,11 +10,20 @@ function doGet(e) {
     // apiFrame request
     let id = e.parameter.id;
     switch(e.parameter.r) {
-      case "L": // login
+      case "login":
         return apiFrame(id, () => login());
-      case "LS": // listSheets
+      case "listSheets":
         return apiFrame(id, () => listSheets());
-        //TODO all other functions in Requests.gs 
+      case "addSheet":
+        return apiFrame(id, () => addSheet(p[0], p[1]));
+      case "removeSheet":
+        return apiFrame(id, () => removeSheet(p[0]));
+      case "createSheet":
+        return apiFrame(id, () => createSheet(p[0]));
+      case "addCost":
+        return apiFrame(id, () => addCost(p[0], p[1], p[2], p[3], p[4], p[5], p[6]));
+      case "listBalances":
+        return apiFrame(id, () => listBalances(p[0]));
       default:
         return apiFrame(id, () => {
           throw new Error("Invalid request: " + e.parameter.r)
