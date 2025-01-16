@@ -35,27 +35,29 @@
       <p>Amount $: <input type="number" min=0 step=10 placeholder="100.00" id="add_cost_amount"></p>
       <p id="add_cost_is_transfer">To: <select id="add_cost_transfer_to"></select></p>
       <div id="add_cost_is_expense" class="pb-3">
-        <table border="1" width="100%">
+        <table width="100%">
           <tr>
             <td>
-              <input type="checkbox" onclick="changeCostForAll()" id="add_cost_for_all">
+              <input type="checkbox" onclick="changeCostForAll()" id="add_cost_check_all">
               For:
             </td>
             <td width="200px">
-              <input type="radio" name="add_cost_share" id="add_cost_even" onclick="setCostShares(true, true)"><label for="add_cost_even">&nbsp;Even</label>&nbsp;&nbsp;&nbsp;
-              <input type="radio" name="add_cost_share" id="add_cost_shares" onclick="setCostShares(false, false)"><label for="add_cost_shares">&nbsp;Shares</label>&nbsp;&nbsp;&nbsp;
-              <input type="radio" name="add_cost_share" id="add_cost_percent" onclick="setCostShares(false, true)"><label for="add_cost_percent">&nbsp;%</label>
+              <input type="radio" name="add_cost_by_type" id="add_cost_even" onclick="setCostShares(true, false)"><label for="add_cost_even">&nbsp;Even</label>&nbsp;&nbsp;&nbsp;
+              <input type="radio" name="add_cost_by_type" id="add_cost_by_shares" onclick="setCostShares(false, false)"><label for="add_cost_by_shares">&nbsp;Shares</label>&nbsp;&nbsp;&nbsp;
+              <input type="radio" name="add_cost_by_type" id="add_cost_by_percent" onclick="setCostShares(false, true)"><label for="add_cost_by_percent">&nbsp;%</label>
             </td>
           </tr>
         </table>
-        <table border="1" width="100%" id="add_cost_table">
+        <table width="100%">
           <td>
-            <input type="checkbox" onclick="changeCostForOne()" id="add_cost_for_EMAIL">
+            <input type="checkbox" onclick="changeCostForOne()" id="add_cost_for_EMAIL" class="add_cost_for">
             Person 1
           </td>
           <td width="105px">
-            <input style="width: 80px" type="number" id="add_cost_share_EMAIL" min="0">
-            <span id="add_cost_percent_sign_EMAIL">%</span>
+            <div style="display: inline-block">
+              <input style="width: 80px" type="number" id="add_cost_share_EMAIL" class="add_cost_share" min="0">
+              <span class="add_cost_percent_sign">%</span>
+            </div>
           </td>
         </table>
       </div>

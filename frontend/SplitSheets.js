@@ -32,7 +32,7 @@ function quote(s) {
 function viewBalances(id) {
   if (!id) return;
   //TODO clear & load ui balance
-  setView("ui_balance");
+  setView("ui_balance");//TODO make ui balance in html
 }
 
 // ui_add (cost)
@@ -46,10 +46,10 @@ function viewAdd(id) {
   //TODO make add_cost_paid_by default to me
   document.getElementById("add_cost_amount").value = "";
   //TODO make add_cost_transfer_to default to first not-me person (future: persist last to)
-  document.getElementById("add_cost_for_all").checked = true;
+  document.getElementById("add_cost_check_all").checked = true;
   changeCostForAll();
   document.getElementById("add_cost_even").checked = true;
-  setCostShares(true, true);
+  setCostShares(true, false);
   setView("ui_add");
 }
 
@@ -78,19 +78,56 @@ function setCostType(is_expense) {
 }
 
 function changeCostForAll() {
-
+  //TODO
 }
 
 function setCostShares(is_even, is_percent) {
+  let input_value;
+  if (is_even) {
+    input_value = "";
+  } else if (!is_percent) {
+    input_value = 1;
+  } else {
+    var count = countForChecked();
+    if (count == 0) {
+      input_value = null;
+    } else {
+      input_value = 100/count;
+    }
+  }
+  const input_visibility = !is_even ? "inherit" : "hidden";
+  const input_max = is_percent ? 100 : null;
+  for (const e of document.getElementsByClassName("add_cost_share")) {
+    if (!e.disabled) {
+      e.value = input_value;
+    } else {
+      e.value = "";
+    }
+    e.style.visibility = input_visibility;
+    e.max = input_max;
+  }
+  const percent_display = is_percent ? "inherit" : "none";
+  for (const e of document.getElementsByClassName("add_cost_percent_sign")) {
+    e.style.display = percent_display;
+  }
+}
 
+function countForChecked() {
+  let count = 0;
+  for (const e of document.getElementsByClassName("add_cost_for")) {
+    if (e.checked) {
+      count += 1;
+    }
+  }
+  return count;
 }
 
 function changeCostForOne() {
-
+  //TODO
 }
 
 function addCost() {
-
+  //TODO
 }
 
 // ui_manage (sheets)
