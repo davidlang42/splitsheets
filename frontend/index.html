@@ -39,7 +39,17 @@
       <p>Balances</p>
     </div>
     <div id="ui_new" class="container-fluid ui-view" style="display: none;">
-      <p>Add new sheet</p>
+      <p>&nbsp;Name: <input type="text" id="new_sheet_name"></p>
+      <p>&nbsp;
+        <input type="radio" name="new_sheet_type" id="new_sheet_create" onclick="document.getElementById('new_sheet_link').disabled = true;">
+        <label for="new_sheet_create"> Create new Google Sheet</label>
+      </p>
+      <p>&nbsp;
+        <input type="radio" name="new_sheet_type" id="new_sheet_existing" onclick="document.getElementById('new_sheet_link').disabled = false;">
+        <label for="new_sheet_existing"> Join existing Google Sheet:</label><br>
+        <input style="width: 100%" type="text" id="new_sheet_link" placeholder="https://docs.google.com/spreadsheets/d/...">
+      </p>
+      <p><button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="addNewSheet()">Add Sheet</button></p>
     </div>
         <!--
           <div class="row flex-row flex-nowrap py-3">

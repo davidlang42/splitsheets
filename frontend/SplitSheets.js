@@ -27,7 +27,7 @@ function quote(s) {
   return '"' + s.replace('"','\\"') + '"';
 }
 
-// ui_balances
+// ui_balance
 
 function viewBalances(id) {
   if (!id) return;
@@ -87,5 +87,43 @@ function deleteSheet(id, name) {
 // ui_new (sheet)
 
 function viewNew() {
+  document.getElementById("new_sheet_create").checked = true;
+  document.getElementById("new_sheet_name").value = "";
+  const new_sheet_link = document.getElementById("new_sheet_link");
+  new_sheet_link.disabled = true;
+  new_sheet_link.value = "";
   setView("ui_new");
+}
+
+const SPREADSHEET_LINK_PREFIX = "https://docs.google.com/spreadsheets/d/";
+
+function addNewSheet() {
+  const new_name = document.getElementById("new_sheet_name").value;
+  if (document.getElementById("new_sheet_create").checked) {
+    // create new
+    if (!new_name) {
+      alert('Please enter a name for the new Google Sheet');
+      return;
+    }
+    clearManageSheets("Creating...");
+    api.createSheet(new_name, updateManageSheets);
+  } else {
+    // add existing
+    let existing = document.getElementById("new_sheet_link").value;
+    if (!existing) {
+      alert('Please enter the ID or link for the existing Google Sheet');
+      return;
+    }
+    existing = existing.replace('\\','/');
+    if (existing.startsWith(SPREADSHEET_LINK_PREFIX)) {
+      existing = existing.substring(SPREADSHEET_LINK_PREFIX.length);
+      existing = existing.split("/")[0];
+    } else if (existing.indexOf('/') >= 0 || existing.indexOf(':') >= 0) {
+      alert('Google Sheets links should start with ' + SPREADSHEET_LINK_PREFIX);
+      return;
+    }
+    clearManageSheets("Adding...");
+    api.addSheet(existing, new_name, updateManageSheets);
+  }
+  setView("ui_manage");
 }
