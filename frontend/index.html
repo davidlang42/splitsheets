@@ -24,7 +24,44 @@
       </div>
     </nav>
     <div id="ui_add" class="container-fluid ui-view">
-      <p>Add Transaction</p>
+      <p>Sheet: <select id="add_cost_sheet"></select></p>
+      <p>Date: <input id="add_cost_date" type="datetime-local"></p>
+      <p>
+        <input type="radio" name="add_cost_type" id="add_cost_expense" onclick="setCostIsExpense(true)"><label for="add_cost_expense">&nbsp;Expense</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" name="add_cost_type" id="add_cost_transfer" onclick="setCostIsExpense(false)"><label for="add_cost_transfer">&nbsp;Transfer</label>
+      </p>
+      <p>Description: <input type="text" id="add_cost_description"></p>
+      <p>Paid By: <select id="add_cost_paid_by"></select></p>
+      <p>Amount $: <input type="number" min=0 step=10 placeholder="100.00" id="add_cost_amount"></p>
+
+      <p id="add_cost_is_transfer">To: <select id="add_cost_transfer_to"></select></p>
+      <p id="add_cost_is_expense">
+        <table border="1" width="100%">
+          <tr>
+            <td>
+              <input type="checkbox" onclick="changeCostForAll()" id="add_cost_for_all">
+              For:
+            </td>
+            <td width="200px">
+              <input type="radio" name="add_cost_share" id="add_cost_even" onclick="setCostShares(true, true)"><label for="add_cost_even">&nbsp;Even</label>&nbsp;&nbsp;&nbsp;
+              <input type="radio" name="add_cost_share" id="add_cost_shares" onclick="setCostShares(false, false)"><label for="add_cost_shares">&nbsp;Shares</label>&nbsp;&nbsp;&nbsp;
+              <input type="radio" name="add_cost_share" id="add_cost_percent" onclick="setCostShares(false, true)"><label for="add_cost_percent">&nbsp;%</label>
+            </td>
+          </tr>
+        </table>
+        <table border="1" width="100%" id="add_cost_table">
+          <td>
+            <input type="checkbox" onclick="changeCostForOne()" id="add_cost_for_EMAIL">
+            Person 1
+          </td>
+          <td width="105px">
+            <input style="width: 80px" type="number" id="add_cost_share_EMAIL" min="0">
+            <span id="add_cost_percent_sign_EMAIL">%</span>
+          </td>
+        </table>
+      </p>
+
+      <p><button class="btn btn-sm my-2 my-sm-0" onClick="addCost()">Add Expense</button></p>
     </div>
     <div id="ui_manage" class="container-fluid ui-view" style="display: none;">
       <div style="display: inline-block; width: 100%">
