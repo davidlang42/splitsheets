@@ -4,6 +4,8 @@ const TARGET_ORIGIN = "*"; //TODO make this splitsheets.davidlang.net
 function doGet(e) {
   let id = e.parameter.id;
   switch(e.parameter.r) {
+    case "L": // login
+      return apiFrame(id, () => login());
     case "LS": // listSheets
       return apiFrame(id, () => listSheets());
       //TODO all other functions in Requests.gs 

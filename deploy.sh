@@ -22,7 +22,7 @@ fi
 echo "${output_prefix}Pulling from git..."
 git pull
 echo "${output_prefix}...done"
-cd app
+cd backend
 echo "${output_prefix}Pulling from apps scripts..."
 clasp pull
 echo "${output_prefix}...done"

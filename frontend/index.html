@@ -4,16 +4,9 @@
     <title>SplitSheets</title>
     <meta charset="utf-8" />
     <script src="ApiFrames.js"></script>
-    <script>
-      function clickButton() {
-        document.getElementById('content').innerText = "Loading...";
-        api.listSheets(function(sheets) {
-          document.getElementById('content').innerHTML = JSON.stringify(sheets);
-        });
-      }
-    </script>
+    <script src="SplitSheets.js"></script>
   </head>
-  <body>
+  <body onload="onLoad()">
     <input type="button" onclick="clickButton()" value="Test Api"/>
     <div id="content"></div>
   </body>

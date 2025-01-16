@@ -1,3 +1,7 @@
+function login() {
+  return Session.getActiveUser().getEmail();
+}
+
 // returns known sheets as {id: name}
 function listSheets() {
   var p = PropertiesService.getUserProperties();

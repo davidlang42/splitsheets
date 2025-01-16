@@ -1,6 +1,7 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp5nL9DhJaNiKgviIn4kA3jZI6yztz6mRWBGHFIPOxlu3xMsaK/exec";
 
 let api = {
+    login: (callback) => sendRequest('L', [], callback),
     listSheets: (callback) => sendRequest('LS', [], callback)
 };
 
@@ -35,7 +36,6 @@ function sendRequest(request, parameters, callback, id) {
             }, 1000); // 1s after frame loads
         };
         apiframe.src = BACKEND_URL + "?id=" + id + "&" + query.toString();
-        console.log(apiframe.src);
     }
 }
 
