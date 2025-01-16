@@ -1,5 +1,5 @@
 function onLoad() {
-  setView("ui_add");
+  viewAdd();
   api.listSheets(updateSheetList);
 }
 
@@ -38,7 +38,59 @@ function viewBalances(id) {
 // ui_add (cost)
 
 function viewAdd(id) {
+  //TODO persist last used sheet in localStorage, and set add_cost_sheet here
+  document.getElementById("add_cost_date").value = Date.now();
+  document.getElementById("add_cost_description").value = "";
+  document.getElementById("add_cost_expense").checked = true;
+  setCostType(true);
+  //TODO make add_cost_paid_by default to me
+  document.getElementById("add_cost_amount").value = "";
+  //TODO make add_cost_transfer_to default to first not-me person (future: persist last to)
+  document.getElementById("add_cost_for_all").checked = true;
+  changeCostForAll();
+  document.getElementById("add_cost_even").checked = true;
+  setCostShares(true, true);
   setView("ui_add");
+}
+
+const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
+
+function setCostType(is_expense) {
+  const add_cost_button = document.getElementById("add_cost_button");
+  const add_cost_description = document.getElementById("add_cost_description");
+  if (is_expense) {
+    if (add_cost_description.value == DEFAULT_TRANSFER_DESCRIPTION) add_cost_description.value = "";
+    document.getElementById("add_cost_paid_by_label").innerHTML = "Paid By";
+    document.getElementById("add_cost_is_transfer").style.display = "none";
+    document.getElementById("add_cost_is_expense").style.display = "inherit";
+    add_cost_button.classList.remove("btn-success");
+    add_cost_button.classList.add("btn-primary");
+    add_cost_button.innerHTML = "Add Expense";
+  } else {
+    if (add_cost_description.value == "") add_cost_description.value = DEFAULT_TRANSFER_DESCRIPTION;
+    document.getElementById("add_cost_paid_by_label").innerHTML = "From";
+    document.getElementById("add_cost_is_transfer").style.display = "inherit";
+    document.getElementById("add_cost_is_expense").style.display = "none";
+    add_cost_button.classList.remove("btn-primary");
+    add_cost_button.classList.add("btn-success");
+    add_cost_button.innerHTML = "Add Transfer";
+  }
+}
+
+function changeCostForAll() {
+
+}
+
+function setCostShares(is_even, is_percent) {
+
+}
+
+function changeCostForOne() {
+
+}
+
+function addCost() {
+
 }
 
 // ui_manage (sheets)

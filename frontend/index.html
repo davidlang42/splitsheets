@@ -27,15 +27,14 @@
       <p>Sheet: <select id="add_cost_sheet"></select></p>
       <p>Date: <input id="add_cost_date" type="datetime-local"></p>
       <p>
-        <input type="radio" name="add_cost_type" id="add_cost_expense" onclick="setCostIsExpense(true)"><label for="add_cost_expense">&nbsp;Expense</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" name="add_cost_type" id="add_cost_transfer" onclick="setCostIsExpense(false)"><label for="add_cost_transfer">&nbsp;Transfer</label>
+        <input type="radio" name="add_cost_type" id="add_cost_expense" onclick="setCostType(true)"><label for="add_cost_expense">&nbsp;Expense</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" name="add_cost_type" id="add_cost_transfer" onclick="setCostType(false)"><label for="add_cost_transfer">&nbsp;Transfer</label>
       </p>
       <p>Description: <input type="text" id="add_cost_description"></p>
-      <p>Paid By: <select id="add_cost_paid_by"></select></p>
+      <p><span id="add_cost_paid_by_label"></span>: <select id="add_cost_paid_by"></select></p>
       <p>Amount $: <input type="number" min=0 step=10 placeholder="100.00" id="add_cost_amount"></p>
-
       <p id="add_cost_is_transfer">To: <select id="add_cost_transfer_to"></select></p>
-      <p id="add_cost_is_expense">
+      <div id="add_cost_is_expense" class="pb-3">
         <table border="1" width="100%">
           <tr>
             <td>
@@ -59,9 +58,8 @@
             <span id="add_cost_percent_sign_EMAIL">%</span>
           </td>
         </table>
-      </p>
-
-      <p><button class="btn btn-sm my-2 my-sm-0" onClick="addCost()">Add Expense</button></p>
+      </div>
+      <p><button class="btn btn-sm my-2 my-sm-0" onClick="addCost()" id="add_cost_button"></button></p>
     </div>
     <div id="ui_manage" class="container-fluid ui-view" style="display: none;">
       <div style="display: inline-block; width: 100%">
