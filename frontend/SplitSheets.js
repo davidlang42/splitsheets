@@ -281,7 +281,6 @@ function addCost() {
   } else if (!description) {
     warning = "Are you sure you want to leave the " + transaction + " description blank?";
   }
-  
   if (is_expense) {
     // expense
     let paid_for = [];
@@ -292,6 +291,10 @@ function addCost() {
     }
     if (paid_for.length == 0) {
       alert("Please select at least 1 person this expense is paying for.");
+      return;
+    }
+    if (paid_for.length == 1 && paid_for[0] == paid_by) {
+      alert("Please select more people this expense is for other than the person who paid.");
       return;
     }
     let split = [];
@@ -323,6 +326,10 @@ function addCost() {
     const transfer_to = document.getElementById("add_cost_transfer_to").value;
     if (!transfer_to) {
       alert("Please select who this transfer is to.");
+      return;
+    }
+    if (transfer_to == paid_by) {
+      alert("Please select different people for 'From' and 'To'.");
       return;
     }
     if (warning && !confirm(warning)) return;
