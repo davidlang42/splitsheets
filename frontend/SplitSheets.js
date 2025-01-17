@@ -3,10 +3,21 @@ function onLoad() {
   api.listSheets(updateSheetList);
 }
 
+function sortedKeysByValue(obj) {
+  let keys = Object.keys(obj);
+  keys.sort((a, b) => obj[a].localeCompare(obj[b])); // assumes values are strings
+  return keys;
+}
+
+function sortedKeysByKey(obj) {
+  let keys = Object.keys(obj);
+  keys.sort((a, b) => a.localeCompare(b)); // assumes keys are strings
+  return keys;
+}
+
 function updateSheetList(sheets) {
   let new_list = "";
-  //TODO sort in name order
-  for (const id in sheets) {
+  for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
@@ -51,8 +62,7 @@ function clearBalanceList(placeholder) {
 
 function updateBalanceList(balances) {
   let new_list = "";
-  //TODO sort in name order
-  for (const email in balances) {
+  for (const email of sortedKeysByKey(balances)) {
     const balance = balances[email];
     if (balance > 0) {
       new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
@@ -104,8 +114,7 @@ function updateAddCostSheets(sheets) {
   const existing_selected_id = add_cost_sheet.value;
   let found_existing = false;
   let new_list = "";
-  //TODO sort in name order
-  for (const id in sheets) {
+  for (const id of sortedKeysByValue(sheets)) {
     let selected = "";
     if (id == existing_selected_id) {
       selected = " selected";
@@ -150,8 +159,7 @@ function updateUsersForElementId(element_id, users) {
   const element = document.getElementById(element_id);
   const existing_selected_email = element.value;
   let new_list = "";
-  //TODO sort in name order
-  for (const email in users) {
+  for (const email of sortedKeysByKey(users)) {
     const selected = email == existing_selected_email ? " selected" : "";
     new_list += "<option value='" + email + "'" + selected + ">" + users[email] + "</option>";
   }
@@ -161,9 +169,8 @@ function updateUsersForElementId(element_id, users) {
 function updateAddCostUsersTableOnly(users) {
   const table = document.getElementById("add_cost_table");
   let new_html = "";
-  //TODO sort in name order
   const checked = true;
-  for (const email in users) {
+  for (const email of sortedKeysByKey(users)) {
     new_html += "<tr>";
     new_html += "<td>";
     new_html += "<input type='checkbox' onclick='changeCostForOne(this)' id='add_cost_for_" + email + "' class='add_cost_for'";
@@ -412,8 +419,7 @@ function clearManageSheets(placeholder) {
 
 function updateManageSheets(sheets) {
   let new_list = "";
-  //TODO sort in name order
-  for (const id in sheets) {
+  for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
