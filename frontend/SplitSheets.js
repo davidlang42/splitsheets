@@ -365,7 +365,7 @@ function addCost() {
       }
     }
     paid_for = paid_for.join(",");
-    split = split.join(is_percent ? "/" : ":"); //TODO need to make sure that 1:1:2 splits and 25/25/50 splits dont interpret as dates/times in the spreadsheet
+    split = split.join(is_percent ? "/" : ":");
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding expense...");
     api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, updateBalanceList)
