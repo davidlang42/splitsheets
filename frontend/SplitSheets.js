@@ -41,7 +41,7 @@ function setView(view_id) {
 }
 
 function quote(s) {
-  return '"' + s.replaceAll('"','\\"') + '"';
+  return '"' + s.replaceAll('"','\\"').replaceAll("'","\\'") + '"';
 }
 
 // ui_balance
@@ -103,7 +103,7 @@ function viewAdd(id, name) {
 }
 
 function initialPopulateAddCostSheets(id, name) {
-  document.getElementById("add_cost_sheet").innerHTML = "<option value='" + id + "'>" + name + "</option>";
+  document.getElementById("add_cost_sheet").innerHTML = "<option value=" + quote(id) + ">" + name + "</option>";
   changeCostSheet();
 }
 
@@ -123,7 +123,7 @@ function updateAddCostSheets(sheets) {
       selected = " selected";
       found_existing = true;
     }
-    new_list += "<option value='" + id + "'" + selected + ">" + sheets[id] + "</option>";
+    new_list += "<option value=" + quote(id) + selected + ">" + sheets[id] + "</option>";
   }
   add_cost_sheet.innerHTML = new_list;
   if (!found_existing) {

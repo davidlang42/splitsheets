@@ -49,7 +49,7 @@ function apiFrame(id, lambda) {
     const response = lambda();
     html += "response:JSON.parse('" + JSON.stringify(response).replaceAll("'","\\'").replaceAll('\"','\\"') + "')";
   } catch (error) {
-    html += "error:'" + error.message + "'";
+    html += "error:'" + error.message.replaceAll("'", "\\'") + "'";
   }
   html += "},'" + TARGET_ORIGIN + "');</script>";
   return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
