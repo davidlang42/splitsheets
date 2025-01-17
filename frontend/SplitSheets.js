@@ -153,17 +153,18 @@ function clearAddCostUsersTableOnly() {
 }
 
 function updateAddCostUsers(users) {
-  updateUsersForElementId("add_cost_paid_by", users);
+  updateUsersForElementId("add_cost_paid_by", users, currentUser);
   updateUsersForElementId("add_cost_transfer_to", users);
   updateAddCostUsersTableOnly(users);
 }
 
-function updateUsersForElementId(element_id, users) {
+function updateUsersForElementId(element_id, users, default_select_email) {
   const element = document.getElementById(element_id);
   const existing_selected_email = element.value;
+  const should_select_email = existing_selected_email && existing_selected_email.length ? existing_selected_email : default_select_email; // keep existing, or use default if no existing
   let new_list = "";
   for (const email of sortedKeysByKey(users)) {
-    const selected = email == existing_selected_email ? " selected" : "";
+    const selected = email == should_select_email ? " selected" : "";
     new_list += "<option value='" + email + "'" + selected + ">" + users[email] + "</option>";
   }
   element.innerHTML = new_list;
