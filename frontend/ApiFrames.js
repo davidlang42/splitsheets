@@ -1,6 +1,7 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp5nL9DhJaNiKgviIn4kA3jZI6yztz6mRWBGHFIPOxlu3xMsaK/exec";
 const IFRAME_PREFIX = "apiFrame_";
 
+//TODO use fixed unique_ids for requests without arguments
 let api = {
   login: (callback) => sendRequest('login', [], callback), // returns the email of the current user
   listSheets: (callback) => sendRequest('listSheets', [], callback), // returns known sheets as {id: name}
@@ -9,6 +10,7 @@ let api = {
   createSheet: (name, callback) => sendRequest('createSheet', [name], callback), // creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
   addCost: (sheet_id, date, description, amount, paid_by, paid_for, split, callback) => sendRequest('addCost', [sheet_id, date, description, amount, paid_by, paid_for, split], callback), // append a new cost row to the given sheet
   listBalances: (sheet_id, callback) => sendRequest('listBalances', [sheet_id], callback), // return balances from a given sheet as {email: owed}
+  listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback), // return users for a given sheet as {email: alias}
 };
 
 const requestCallbacks = {}; // {id: callback}

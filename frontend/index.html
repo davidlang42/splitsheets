@@ -24,7 +24,7 @@
       </div>
     </nav>
     <div id="ui_add" class="container-fluid ui-view">
-      <p>Sheet: <select id="add_cost_sheet"></select></p>
+      <p>Sheet: <select id="add_cost_sheet" onchange="changeCostSheet()">Loading...</select></p>
       <p>Date: <input id="add_cost_date" type="datetime-local"></p>
       <p>
         <input type="radio" name="add_cost_type" id="add_cost_expense" onclick="setCostType(true)"><label for="add_cost_expense">&nbsp;Expense</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

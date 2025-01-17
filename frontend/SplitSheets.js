@@ -38,19 +38,72 @@ function viewBalances(id) {
 // ui_add (cost)
 
 function viewAdd(id) {
-  //TODO persist last used sheet in localStorage, and set add_cost_sheet here
+  clearAddCostSheets();
+  api.listSheets((sheets) => updateAddCostSheets(sheets)); //TODO persist last used sheet in localStorage, and set add_cost_sheet here
   document.getElementById("add_cost_date").value = Date.now();
   document.getElementById("add_cost_description").value = "";
   document.getElementById("add_cost_expense").checked = true;
   setCostType(true);
-  //TODO make add_cost_paid_by default to me
   document.getElementById("add_cost_amount").value = "";
-  //TODO make add_cost_transfer_to default to first not-me person (future: persist last to)
   document.getElementById("add_cost_check_all").checked = true;
   changeCostForAll();
   document.getElementById("add_cost_even").checked = true;
   setCostShares(true, false);
   setView("ui_add");
+}
+
+function clearAddCostSheets() {
+  document.getElementById("add_cost_sheet").innerHTML = "<option value=''>Loading...</option>";
+  changeCostSheet();
+}
+
+function updateAddCostSheets(sheets, selected_id) {
+  const add_cost_sheet = document.getElementById("add_cost_sheet");
+  if (!selected_id) {
+    selected_id = add_cost_sheet.value;
+  }
+  let new_list = "";
+  //TODO sort in name order
+  for (const id in sheets) {
+    const selected = id == selected_id ? " selected" : "";
+    new_list += "<option value='" + id + "'" + selected + ">" + sheets[id] + "</option>";
+  }
+  add_cost_sheet.innerHTML = new_list;
+  changeCostSheet();
+}
+
+function changeCostSheet() {
+  const sheet_id = document.getElementById("add_cost_sheet").value;
+  if (!sheet_id) {
+    clearAddCostUsers();
+  } else {
+    api.listUsers(sheet_id, updateAddCostUsers);
+  }
+}
+
+function clearAddCostUsers() {
+  const loading_option = "<option value=''>Loading...</option>";
+  document.getElementById("add_cost_paid_by").innerHTML = loading_option;
+  document.getElementById("add_cost_transfer_to").innerHTML = loading_option;
+  //TODO clear table
+}
+
+function updateAddCostUsers(users) {
+  updateUsersForElementId("add_cost_paid_by", users); //TODO make add_cost_paid_by default to me, only if there is no selection yet (ie. Loading...)
+  updateUsersForElementId("add_cost_transfer_to", users); //TODO make add_cost_transfer_to default to first not-me person (future: persist last to), only if there is no selection yet (ie. Loading...)
+  //TODO populate table
+}
+
+function updateUsersForElementId(element_id, users) {
+  const element = document.getElementById(element_id);
+  const existing_selected_id = element.value;
+  let new_list = "";
+  //TODO sort in name order
+  for (const id in users) {
+    const selected = id == existing_selected_id ? " selected" : "";
+    new_list += "<option value='" + id + "'" + selected + ">" + users[id] + "</option>";
+  }
+  element.innerHTML = new_list;
 }
 
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
@@ -116,10 +169,6 @@ function countForChecked() {
     }
   }
   return count;
-}
-
-function countForAll() {
-  return ;
 }
 
 function changeCostForAll() {
