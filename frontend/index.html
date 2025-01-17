@@ -64,7 +64,10 @@
       <p><span id="balance_sheet_name"></span> Balances</p>
       <p><ul id="balance_list"></ul></p>
       <p><a id="balance_google_link" target="_blank">Open Google Sheet for details</a></p>
-      <p><input type="hidden" id="balance_sheet_id"><button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="viewAdd(document.getElementById('balance_sheet_id').value)">Add Transaction</button></p>
+      <p>
+        <input type="hidden" id="balance_sheet_id">
+        <button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="viewAdd(document.getElementById('balance_sheet_id').value, document.getElementById('balance_sheet_name').innerText)">Add Transaction</button>
+      </p>
     </div>
     <div id="ui_new" class="container-fluid ui-view" style="display: none;">
       <p>&nbsp;Name: <input type="text" id="new_sheet_name"></p>

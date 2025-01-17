@@ -67,9 +67,13 @@ function updateBalanceList(balances) {
 
 // ui_add (cost)
 
-function viewAdd(id) {
-  clearAddCostSheets();
-  api.listSheets((sheets) => updateAddCostSheets(sheets, id)); //TODO persist last used sheet in localStorage, and set add_cost_sheet here (only if id arg not supplied)
+function viewAdd(id, name) {
+  if (id && name) {
+    initialPopulateAddCostSheets(id, name);
+  } else {
+    clearAddCostSheets();
+  }
+  api.listSheets(updateAddCostSheets);
   document.getElementById("add_cost_date").value = Date.now();//TODO this doesnt work
   document.getElementById("add_cost_description").value = "";
   document.getElementById("add_cost_expense").checked = true;
@@ -82,24 +86,34 @@ function viewAdd(id) {
   setView("ui_add");
 }
 
+function initialPopulateAddCostSheets(id, name) {
+  document.getElementById("add_cost_sheet").innerHTML = "<option value='" + id + "'>" + name + "</option>";
+  changeCostSheet();
+}
+
 function clearAddCostSheets() {
   document.getElementById("add_cost_sheet").innerHTML = "<option value=''>Loading...</option>";
   changeCostSheet();
 }
 
-function updateAddCostSheets(sheets, selected_id) {
+function updateAddCostSheets(sheets) {
   const add_cost_sheet = document.getElementById("add_cost_sheet");
-  if (!selected_id) {
-    selected_id = add_cost_sheet.value;
-  }
+  const existing_selected_id = add_cost_sheet.value;
+  let found_existing = false;
   let new_list = "";
   //TODO sort in name order
   for (const id in sheets) {
-    const selected = id == selected_id ? " selected" : "";
+    let selected = "";
+    if (id == existing_selected_id) {
+      selected = " selected";
+      found_existing = true;
+    }
     new_list += "<option value='" + id + "'" + selected + ">" + sheets[id] + "</option>";
   }
   add_cost_sheet.innerHTML = new_list;
-  changeCostSheet();
+  if (!found_existing) {
+    changeCostSheet();
+  }
 }
 
 function changeCostSheet() {
@@ -124,8 +138,8 @@ function clearAddCostUsersTableOnly() {
 }
 
 function updateAddCostUsers(users) {
-  updateUsersForElementId("add_cost_paid_by", users); //TODO make add_cost_paid_by default to me, only if there is no selection yet (ie. Loading...)
-  updateUsersForElementId("add_cost_transfer_to", users); //TODO make add_cost_transfer_to default to first not-me person (future: persist last to), only if there is no selection yet (ie. Loading...)
+  updateUsersForElementId("add_cost_paid_by", users);
+  updateUsersForElementId("add_cost_transfer_to", users);
   updateAddCostUsersTableOnly(users);
 }
 
