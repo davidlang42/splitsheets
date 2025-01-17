@@ -7,7 +7,10 @@ function updateSheetList(sheets) {
   let new_list = "";
   //TODO sort in name order
   for (const id in sheets) {
-    new_list += "<li class='nav-item'><a class='nav-link btns' onclick=viewBalances('" + id + "')>" + sheets[id] + "</a></li>";
+    const q_id = quote(id);
+    const name = sheets[id];
+    const q_name = quote(name);
+    new_list += "<li class='nav-item'><a class='nav-link btns' onclick='viewBalances(" + q_id + "," + q_name + ")'>" + sheets[id] + "</a></li>";
   }
   document.getElementById("sheet_list").innerHTML = new_list;
 }
@@ -29,15 +32,42 @@ function quote(s) {
 
 // ui_balance
 
-function viewBalances(id) {
-  if (!id) return;
-  //TODO clear & load ui balance
-  setView("ui_balance");//TODO make ui balance in html
+function viewBalances(id, name) {
+  if (!id || !name) {
+    throw new Error("Missing arguments to viewBalances()");
+  }
+  clearBalanceList();
+  document.getElementById("balance_sheet_id").value = id;
+  document.getElementById("balance_google_link").href = SPREADSHEET_LINK_PREFIX + id;
+  document.getElementById("balance_sheet_name").innerHTML = name;
+  api.listBalances(id, updateBalanceList);
+  setView("ui_balance");
+}
+
+function clearBalanceList() {
+  document.getElementById("balance_list").innerHTML = "Loading...";
+}
+
+function updateBalanceList(balances) {
+  let new_list = "";
+  //TODO sort in name order
+  for (const email in balances) {
+    const balance = balances[email];
+    if (balance > 0) {
+      new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
+    } else if (balance < 0) {
+      new_list += "<li>" + email + " <span class='owes'>owes $" + (-balance) + "</span></li>";
+    } else {
+      new_list += "<li>" + email + " is even</li>";
+    }
+  }
+  document.getElementById("balance_list").innerHTML = new_list;
 }
 
 // ui_add (cost)
 
 function viewAdd(id) {
+  //TODO prepopulate sheet if id arg is set
   clearAddCostSheets();
   api.listSheets((sheets) => updateAddCostSheets(sheets)); //TODO persist last used sheet in localStorage, and set add_cost_sheet here
   document.getElementById("add_cost_date").value = Date.now();
@@ -360,6 +390,7 @@ function updateManageSheets(sheets) {
     new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=90px><button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
+  updateSheetList(sheets); // so the menu gets the updates too
 }
 
 function editSheet(id, name) {

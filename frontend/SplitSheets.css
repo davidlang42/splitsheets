@@ -2,3 +2,11 @@
   margin-top: 64px;
   display: none;
 }
+
+.owes {
+  color: red
+}
+
+.owed {
+  color: green
+}

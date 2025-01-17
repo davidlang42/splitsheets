@@ -37,7 +37,7 @@ function createSheet(name) {
   return listSheets();
 }
 
-// append a new cost row to the given sheet
+// append a new cost row to the given sheet, then return the balances as {email: owed}
 function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
   var sheet = openSheet(sheet_id);
   var costs = sheet.getSheetByName(COSTS_SHEET);
@@ -52,6 +52,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
   row[findColumn(headers, SPLIT_COLUMN)] = split;
   costs.appendRow(row);
+  return listBalances(sheet_id); //TODO could avoid calling openSheet() again, but check its actually slow first
 }
 
 // return balances from a given sheet as {email: owed}
@@ -66,7 +67,10 @@ function listBalances(sheet_id) {
   var result = {};
   for (var i = 1; i < values.length; i++) {
     var row = values[i];
-    result[row[c_person]] = row[c_owed];
+    var email = row[c_person];
+    if (email) {
+      result[email] = row[c_owed];
+    }
   }
   return result;
 }
