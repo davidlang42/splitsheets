@@ -21,3 +21,18 @@ function findColumn(headers, column_name) {
   if (index == -1) throw new Error("Could not find column '" + column_name + "'");
   return index;
 }
+
+function tryOpenFile(id) {
+  try {
+    return DriveApp.getFileById(id); // this throws an error if you can't access it, which can be caught
+  } catch {
+    return null;
+  }
+}
+
+// returns a File object, throws an error if it can't be accessed
+function openFile(id) {
+  var file = tryOpenFile(id);
+  if (!file) throw new Error("Could not access Spreadsheet with ID: " + id);
+  return file;
+}

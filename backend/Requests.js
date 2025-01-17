@@ -77,14 +77,18 @@ function listBalances(sheet_id, _sheet_already_open) {
 
 // return users for a given sheet as {email: alias}
 function listUsers(sheet_id) {
-  //TODO this could either be users the sheet is shared with, or users already listed in the sheet, or maybe both
-  var simple = ["test1@example.com", "test2@example.com", "davidlang42@gmail.com", sheet_id + "@sheet.id"];
-  var obj = {};
-  for (var i = 0; i < simple.length; i++) {
-    obj[simple[i]] = simple[i].split('@')[0];
+  var file = openFile(sheet_id);
+  var users = {};
+  const owner = file.getOwner();
+  const email = owner.getEmail();
+  users[email] = owner.getName() ?? email.split("@")[0];
+  for (const editor of file.getEditors()) {
+    const email = editor.getEmail();
+    users[email] = editor.getName() ?? email.split("@")[0];
   }
-  return obj;
+  for (const viewer of file.getViewers()) {
+    const email = viewer.getEmail();
+    users[email] = viewer.getName() ?? email.split("@")[0];
+  }
+  return users;
 }
-
-//TODO share/unshare existing (owned?) sheet with another user
-//TODO list/edit/delete existing costs on known sheet
