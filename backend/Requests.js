@@ -52,12 +52,12 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
   row[findColumn(headers, SPLIT_COLUMN)] = split;
   costs.appendRow(row);
-  return listBalances(sheet_id); //TODO could avoid calling openSheet() again, but check its actually slow first
+  return listBalances(sheet_id, sheet);
 }
 
 // return balances from a given sheet as {email: owed}
-function listBalances(sheet_id) {
-  var sheet = openSheet(sheet_id);
+function listBalances(sheet_id, _sheet_already_open) {
+  var sheet = _sheet_already_open ?? openSheet(sheet_id);
   var balances = sheet.getSheetByName(BALANCES_SHEET);
   var values = balances.getDataRange().getValues();
   var headers = values[0];
