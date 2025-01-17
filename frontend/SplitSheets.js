@@ -1,5 +1,8 @@
+let currentUser;
+
 function onLoad() {
   viewAdd();
+  api.login((email) => currentUser = email);
   api.listSheets(updateSheetList);
 }
 
