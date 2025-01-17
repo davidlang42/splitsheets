@@ -60,7 +60,7 @@ function onMessage(e) {
   } else if (e.data.error) {
     console.error("Error for id '" + e.data.id + "': " + e.data.error);//TODO errors getting logged dont call handleResponse, so they dont clear the callback, so the timeout redirects to login
   } else {
-    console.error("Empty message: " + e.data);
+    console.error("Empty message: " + JSON.stringify(e.data));
   }
 }
 

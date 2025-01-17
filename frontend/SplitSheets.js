@@ -33,19 +33,20 @@ function quote(s) {
 // ui_balance
 
 function viewBalances(id, name) {
-  if (!id || !name) {
-    throw new Error("Missing arguments to viewBalances()");
-  }
-  clearBalanceList();
+  clearBalanceList("Loading...");
+  api.listBalances(id, updateBalanceList);
+  viewBalancesWithoutUpdatingList(id, name);
+}
+
+function viewBalancesWithoutUpdatingList(id, name) {
   document.getElementById("balance_sheet_id").value = id;
   document.getElementById("balance_google_link").href = SPREADSHEET_LINK_PREFIX + id;
   document.getElementById("balance_sheet_name").innerHTML = name;
-  api.listBalances(id, updateBalanceList);
   setView("ui_balance");
 }
 
-function clearBalanceList() {
-  document.getElementById("balance_list").innerHTML = "Loading...";
+function clearBalanceList(placeholder) {
+  document.getElementById("balance_list").innerHTML = placeholder;
 }
 
 function updateBalanceList(balances) {
@@ -67,10 +68,9 @@ function updateBalanceList(balances) {
 // ui_add (cost)
 
 function viewAdd(id) {
-  //TODO prepopulate sheet if id arg is set
   clearAddCostSheets();
-  api.listSheets((sheets) => updateAddCostSheets(sheets)); //TODO persist last used sheet in localStorage, and set add_cost_sheet here
-  document.getElementById("add_cost_date").value = Date.now();
+  api.listSheets((sheets) => updateAddCostSheets(sheets, id)); //TODO persist last used sheet in localStorage, and set add_cost_sheet here (only if id arg not supplied)
+  document.getElementById("add_cost_date").value = Date.now();//TODO this doesnt work
   document.getElementById("add_cost_description").value = "";
   document.getElementById("add_cost_expense").checked = true;
   setCostType(true);
@@ -282,8 +282,9 @@ function getEmailFromForCheckboxId(e_cost_for_id) {
 function addCost() {
   const is_expense = document.getElementById("add_cost_expense").checked;
   const transaction = is_expense ? "expense" : "transfer";
-  const sheet = document.getElementById("add_cost_sheet").value;
-  if (!sheet) {
+  const sheet_select = document.getElementById("add_cost_sheet");
+  const sheet_id = sheet_select.value;
+  if (!sheet_id) {
     alert("Please select a Sheet to add this " + transaction + " to.");
     return;
   }
@@ -347,10 +348,10 @@ function addCost() {
       }
     }
     paid_for = paid_for.join(",");
-    split = split.join(is_percent ? "/" : ":");
+    split = split.join(is_percent ? "/" : ":"); //TODO need to make sure that 1:1:2 splits and 25/25/50 splits dont interpret as dates/times in the spreadsheet
     if (warning && !confirm(warning)) return;
-    alert("Expense -- Sheet:" + sheet + ", Date:" + date + ", Desc:" + description + ", Paid-By:" + paid_by + ", Amount:" + amount + ", Paid-For:" + paid_for + ", Split:" + split);
-    //TODO api.addCost(sheet, date, description, amount, paid_by, paid_for, split, CALLBACK)
+    clearBalanceList("Adding expense...");
+    api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, updateBalanceList)
   } else {
     // transfer
     const transfer_to = document.getElementById("add_cost_transfer_to").value;
@@ -363,9 +364,21 @@ function addCost() {
       return;
     }
     if (warning && !confirm(warning)) return;
-    alert("Transfer -- Sheet:" + sheet + ", Date:" + date + ", Desc:" + description + ", From:" + paid_by + ", Amount:" + amount + ", To:" + transfer_to);
-    //TODO api.addCost(sheet, date, description, amount, paid_by, transfer_to, "", CALLBACK)
+    clearBalanceList("Adding transfer...");
+    api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", updateBalanceList)
   }
+  const sheet_name = getOptionText(sheet_select, sheet_id);
+  viewBalancesWithoutUpdatingList(sheet_id, sheet_name);
+}
+
+function getOptionText(select_element, option_value) {
+  for (var i = 0; i < select_element.length; i++) {
+    const option_element = select_element[i];
+    if (option_element.value == option_value) {
+      return option_element.innerText;
+    }
+  }
+  return null;
 }
 
 // ui_manage (sheets)
