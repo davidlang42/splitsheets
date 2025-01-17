@@ -41,7 +41,7 @@ function setView(view_id) {
 }
 
 function quote(s) {
-  return '"' + s.replace('"','\\"') + '"';
+  return '"' + s.replaceAll('"','\\"') + '"';
 }
 
 // ui_balance
@@ -481,7 +481,7 @@ function addNewSheet() {
       alert('Please enter the ID or link for the existing Google Sheet');
       return;
     }
-    existing = existing.replace('\\','/');
+    existing = existing.replaceAll('\\','/');
     if (existing.startsWith(SPREADSHEET_LINK_PREFIX)) {
       existing = existing.substring(SPREADSHEET_LINK_PREFIX.length);
       existing = existing.split("/")[0];

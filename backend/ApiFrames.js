@@ -43,11 +43,11 @@ function redirect(url) {
 function apiFrame(id, lambda) {
   let html = "<script>window.top.postMessage({";
   if (id) {
-    html += "id:'" + id + "',"; //TODO escape id for safety
+    html += "id:'" + id.replaceAll("'", "\\'") + "',";
   }
   try {
     const response = lambda();
-    html += "response:JSON.parse('" + JSON.stringify(response) + "')"; //TODO confirm this safely escapes any response
+    html += "response:JSON.parse('" + JSON.stringify(response).replaceAll("'","\\'").replaceAll('\"','\\"') + "')";
   } catch (error) {
     html += "error:'" + error.message + "'";
   }
