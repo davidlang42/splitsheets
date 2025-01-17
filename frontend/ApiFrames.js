@@ -1,10 +1,9 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp5nL9DhJaNiKgviIn4kA3jZI6yztz6mRWBGHFIPOxlu3xMsaK/exec";
 const IFRAME_PREFIX = "apiFrame_";
 
-//TODO use fixed unique_ids for requests without arguments
 let api = {
-  login: (callback) => sendRequest('login', [], callback), // returns the email of the current user
-  listSheets: (callback) => sendRequest('listSheets', [], callback), // returns known sheets as {id: name}
+  login: (callback) => sendRequest('login', [], callback, 'login'), // returns the email of the current user
+  listSheets: (callback) => sendRequest('listSheets', [], callback, 'listSheets'), // returns known sheets as {id: name}
   addSheet: (sheet_id, name, callback) => sendRequest('addSheet', [sheet_id, name], callback), // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
   removeSheet: (sheet_id, callback) => sendRequest('removeSheet', [sheet_id], callback), // removes a sheet from the list of known sheets, and returns the updated list of sheets
   createSheet: (name, callback) => sendRequest('createSheet', [name], callback), // creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
