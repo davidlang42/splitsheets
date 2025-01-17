@@ -74,7 +74,10 @@ function viewAdd(id, name) {
     clearAddCostSheets();
   }
   api.listSheets(updateAddCostSheets);
-  document.getElementById("add_cost_date").value = Date.now();//TODO this doesnt work
+  const test = (new Date()).toISOString();
+  var now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
   document.getElementById("add_cost_description").value = "";
   document.getElementById("add_cost_expense").checked = true;
   setCostType(true);
