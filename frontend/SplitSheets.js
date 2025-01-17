@@ -77,10 +77,6 @@ function setCostType(is_expense) {
   }
 }
 
-function changeCostForAll() {
-  //TODO
-}
-
 function setCostShares(is_even, is_percent) {
   let input_value;
   if (is_even) {
@@ -122,12 +118,131 @@ function countForChecked() {
   return count;
 }
 
-function changeCostForOne() {
-  //TODO
+function countForAll() {
+  return ;
+}
+
+function changeCostForAll() {
+  const new_value = document.getElementById("add_cost_check_all").checked;
+  for (const e of document.getElementsByClassName("add_cost_for")) {
+    e.checked = new_value;
+    setShareInputEnabled(e);
+  }
+}
+
+function changeCostForOne(e) {
+  setShareInputEnabled(e);
+  let total = document.getElementsByClassName("add_cost_for").length;
+  let checked = countForChecked();
+  if (checked == total) {
+    document.getElementById("add_cost_check_all").indeterminate = false;
+    document.getElementById("add_cost_check_all").checked = true;
+  } else if (checked == 0) {
+    document.getElementById("add_cost_check_all").indeterminate = false;
+    document.getElementById("add_cost_check_all").checked = false;
+  } else {
+    document.getElementById("add_cost_check_all").checked = false;
+    document.getElementById("add_cost_check_all").indeterminate = true;
+  }
+}
+
+function setShareInputEnabled(e_cost_for) {
+  const number_input = document.getElementById("add_cost_share_" + getEmailFromForCheckboxId(e_cost_for.id));
+  if (e_cost_for.checked) {
+    number_input.disabled = false;
+  } else {
+    number_input.value = "";
+    number_input.disabled = true;
+  }
+}
+
+function getEmailFromForCheckboxId(e_cost_for_id) {
+  if (!e_cost_for_id.startsWith("add_cost_for_")) {
+    throw new Error("Invalid argument: " + e_cost_for_id);
+  }
+  return e_cost_for_id.substring("add_cost_for_".length);
 }
 
 function addCost() {
-  //TODO
+  const is_expense = document.getElementById("add_cost_expense").checked;
+  const transaction = is_expense ? "expense" : "transfer";
+  const sheet = document.getElementById("add_cost_sheet").value;
+  if (!sheet) {
+    alert("Please select a Sheet to add this " + transaction + " to.");
+    return;
+  }
+  const paid_by = document.getElementById("add_cost_paid_by").value;
+  if (!paid_by) {
+    if (is_expense) {
+      alert("Please select who this expense was paid by.");
+    } else {
+      alert("Please select who this transfer is from.");
+    }
+    return;
+  }
+  const amount = parseFloat(document.getElementById("add_cost_amount").value);
+  if (!(amount > 0)) {
+    alert("Please enter a non-zero " + transaction + " amount.");
+    return;
+  }
+  const date = document.getElementById("add_cost_date").value;
+  const description = document.getElementById("add_cost_description").value;
+  let warning = null;
+  if (!date && !description) {
+    warning = "Are you sure you want to leave the " + transaction + " date AND description blank?";
+  } else if (!date) {
+    warning = "Are you sure you want to leave the " + transaction + " date blank?";
+  } else if (!description) {
+    warning = "Are you sure you want to leave the " + transaction + " description blank?";
+  }
+  
+  if (is_expense) {
+    // expense
+    let paid_for = [];
+    for (const e of document.getElementsByClassName("add_cost_for")) {
+      if (e.checked) {
+        paid_for.push(getEmailFromForCheckboxId(e.id));
+      }
+    }
+    if (paid_for.length == 0) {
+      alert("Please select at least 1 person this expense is paying for.");
+      return;
+    }
+    let split = [];
+    const is_percent = document.getElementById("add_cost_by_percent").checked;
+    if (!document.getElementById("add_cost_even").checked) {
+      let sum = 0;
+      for (let i = 0; i < paid_for.length; i++) {
+        console.log("add_cost_share_" + paid_for[i]);
+        const share = parseFloat(document.getElementById("add_cost_share_" + paid_for[i]).value);
+        if (!(share > 0)) {
+          alert("Please enter a non-zero share for " + paid_for[i] + ".");
+          return;
+        }
+        split.push(share);
+        sum += share;
+      }
+      if (is_percent && sum != 100) {
+        alert("Please make the percentages add to 100%, or use shares instead.");
+        return;
+      }
+    }
+    paid_for = paid_for.join(",");
+    split = split.join(is_percent ? "/" : ":");
+    if (warning && !confirm(warning)) return;
+    alert("Expense -- Sheet:" + sheet + ", Date:" + date + ", Desc:" + description + ", Paid-By:" + paid_by + ", Amount:" + amount + ", Paid-For:" + paid_for + ", Split:" + split);
+    //TODO api.addCost(sheet, date, description, amount, paid_by, paid_for, split, CALLBACK)
+  } else {
+    // transfer
+    const transfer_to = document.getElementById("add_cost_transfer_to").value;
+    if (!transfer_to) {
+      alert("Please select who this transfer is to.");
+      return;
+    }
+    if (warning && !confirm(warning)) return;
+    alert("Transfer -- Sheet:" + sheet + ", Date:" + date + ", Desc:" + description + ", From:" + paid_by + ", Amount:" + amount + ", To:" + transfer_to);
+    //TODO api.addCost(sheet, date, description, amount, paid_by, transfer_to, "", CALLBACK)
+  }
 }
 
 // ui_manage (sheets)

@@ -49,16 +49,30 @@
           </tr>
         </table>
         <table width="100%">
-          <td>
-            <input type="checkbox" onclick="changeCostForOne()" id="add_cost_for_EMAIL" class="add_cost_for">
-            Person 1
-          </td>
-          <td width="105px">
-            <div style="display: inline-block">
-              <input style="width: 80px" type="number" id="add_cost_share_EMAIL" class="add_cost_share" min="0">
-              <span class="add_cost_percent_sign">%</span>
-            </div>
-          </td>
+          <tr>
+            <td>
+              <input type="checkbox" onclick="changeCostForOne(this)" id="add_cost_for_EMAIL" class="add_cost_for">
+              Person 1
+            </td>
+            <td width="105px">
+              <div style="display: inline-block">
+                <input style="width: 80px" type="number" id="add_cost_share_EMAIL" class="add_cost_share" min="0">
+                <span class="add_cost_percent_sign">%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="checkbox" onclick="changeCostForOne(this)" id="add_cost_for_EMAIL2" class="add_cost_for">
+              Person 2
+            </td>
+            <td width="105px">
+              <div style="display: inline-block">
+                <input style="width: 80px" type="number" id="add_cost_share_EMAIL2" class="add_cost_share" min="0">
+                <span class="add_cost_percent_sign">%</span>
+              </div>
+            </td>
+          </tr>
         </table>
       </div>
       <p><button class="btn btn-sm my-2 my-sm-0" onClick="addCost()" id="add_cost_button"></button></p>
