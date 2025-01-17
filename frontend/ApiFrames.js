@@ -52,9 +52,9 @@ window.top.addEventListener('message', onMessage);
 function onMessage(e) {
   if (e.data.response) {
     if (e.data.id) {
-        handleResponse(e.data.id, e.data.response);
+      handleResponse(e.data.id, e.data.response);
     } else {
-        console.error("Response without id: " + e.data.response);
+      console.error("Response without id: " + e.data.response);
     }
   } else if (e.data.error) {
     console.error("Error for id '" + e.data.id + "': " + e.data.error);//TODO errors getting logged dont call handleResponse, so they dont clear the callback, so the timeout redirects to login
