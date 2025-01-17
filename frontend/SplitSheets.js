@@ -77,6 +77,7 @@ function changeCostSheet() {
   if (!sheet_id) {
     clearAddCostUsers();
   } else {
+    clearAddCostUsersTableOnly();
     api.listUsers(sheet_id, updateAddCostUsers);
   }
 }
@@ -85,25 +86,57 @@ function clearAddCostUsers() {
   const loading_option = "<option value=''>Loading...</option>";
   document.getElementById("add_cost_paid_by").innerHTML = loading_option;
   document.getElementById("add_cost_transfer_to").innerHTML = loading_option;
-  //TODO clear table
+  clearAddCostUsersTableOnly();
+}
+
+function clearAddCostUsersTableOnly() {
+  document.getElementById("add_cost_table").innerHTML = "Loading...";
 }
 
 function updateAddCostUsers(users) {
   updateUsersForElementId("add_cost_paid_by", users); //TODO make add_cost_paid_by default to me, only if there is no selection yet (ie. Loading...)
   updateUsersForElementId("add_cost_transfer_to", users); //TODO make add_cost_transfer_to default to first not-me person (future: persist last to), only if there is no selection yet (ie. Loading...)
-  //TODO populate table
+  updateAddCostUsersTableOnly(users);
 }
 
 function updateUsersForElementId(element_id, users) {
   const element = document.getElementById(element_id);
-  const existing_selected_id = element.value;
+  const existing_selected_email = element.value;
   let new_list = "";
   //TODO sort in name order
-  for (const id in users) {
-    const selected = id == existing_selected_id ? " selected" : "";
-    new_list += "<option value='" + id + "'" + selected + ">" + users[id] + "</option>";
+  for (const email in users) {
+    const selected = email == existing_selected_email ? " selected" : "";
+    new_list += "<option value='" + email + "'" + selected + ">" + users[email] + "</option>";
   }
   element.innerHTML = new_list;
+}
+
+function updateAddCostUsersTableOnly(users) {
+  const table = document.getElementById("add_cost_table");
+  let new_html = "";
+  //TODO sort in name order
+  const checked = true;
+  for (const email in users) {
+    new_html += "<tr>";
+    new_html += "<td>";
+    new_html += "<input type='checkbox' onclick='changeCostForOne(this)' id='add_cost_for_" + email + "' class='add_cost_for'";
+    if (checked) new_html += " checked";
+    new_html += "> ";
+    new_html += users[email];
+    new_html += "</td>";
+    new_html += "<td width='105px'>";
+    new_html += "<div style='display: inline-block'>";
+    new_html += "<input style='width: 80px' type='number' id='add_cost_share_" + email + "' class='add_cost_share' min='0'";
+    if (!checked) new_html += " disabled";
+    new_html += ">";
+    new_html += "<span class='add_cost_percent_sign'>%</span>";
+    new_html += "</div>";
+    new_html += "</td>";
+    new_html += "</tr>";
+  }
+  table.innerHTML = new_html;
+  setCostShares(document.getElementById("add_cost_even").checked, document.getElementById("add_cost_by_percent").checked);
+  setCostForAllState();
 }
 
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
@@ -181,6 +214,10 @@ function changeCostForAll() {
 
 function changeCostForOne(e) {
   setShareInputEnabled(e);
+  setCostForAllState();
+}
+
+function setCostForAllState() {
   let total = document.getElementsByClassName("add_cost_for").length;
   let checked = countForChecked();
   if (checked == total) {
