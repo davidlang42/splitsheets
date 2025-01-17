@@ -39,7 +39,7 @@ function sendRequest(request, parameters, callback, id) {
     document.body.appendChild(apiframe);
     apiframe.onload = function() {
       window.setTimeout(function() {
-          handleResponse(id, null); // if no message received
+        handleNoMessage(id); // if no message received
       }, 1000); // 1s after frame loads
     };
     apiframe.src = BACKEND_URL + "?id=" + id + "&" + query.toString();
@@ -51,30 +51,37 @@ window.top.addEventListener('message', onMessage);
 
 function onMessage(e) {
   if (e.data.response) {
-    if (e.data.id) {
-      handleResponse(e.data.id, e.data.response);
-    } else {
-      console.error("Response without id: " + e.data.response);
-    }
+    handleResponse(e.data.id, e.data.response);
   } else if (e.data.error) {
-    console.error("Error for id '" + e.data.id + "': " + e.data.error);//TODO errors getting logged dont call handleResponse, so they dont clear the callback, so the timeout redirects to login
+    handleError(e.data.id, e.data.error);
   } else {
-    console.error("Empty message: " + JSON.stringify(e.data));
+    console.error("Invalid message: " + JSON.stringify(e.data));
+  }
+}
+
+function getAndRemoveCallback(id) {
+  const callback = requestCallbacks[id];
+  if (callback) delete requestCallbacks[id];
+  const apiframe_id = IFRAME_PREFIX + id;
+  const apiframe = document.getElementById(apiframe_id);
+  if (apiframe) apiframe.remove();
+  return callback;
+}
+
+function handleNoMessage(id) {
+  if (getAndRemoveCallback(id)) {
+    // No message received, redirect to login
+    window.top.location.href = BACKEND_URL;
   }
 }
 
 function handleResponse(id, response) {
-  const callback = requestCallbacks[id];
-  if (callback) {
-    delete requestCallbacks[id];
-    const apiframe_id = IFRAME_PREFIX + id;
-    document.getElementById(apiframe_id).remove();
-    if (response) {
-      console.log("Response " + id + ": " + JSON.stringify(response));
-      callback(response);
-    } else {
-      // No message received, redirect to login
-      window.top.location.href = BACKEND_URL;
-    }
-  }
+  console.log("Response " + id + ": " + JSON.stringify(response));
+  getAndRemoveCallback(id)(response);
+}
+
+function handleError(id, error) {
+  console.error("Error " + id + ": " + JSON.stringify(error));
+  getAndRemoveCallback(id);
+  alert('Error: ' + error);
 }
