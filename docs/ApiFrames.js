@@ -34,6 +34,7 @@ function sendRequest(request, parameters, callback, override_id, override_timeou
     requestCallbacks[id] = callback;
     const apiframe = document.createElement("iframe");
     apiframe.id = IFRAME_PREFIX + id;
+    apiframe.sandbox = "allow-scripts allow-same-origin"
     apiframe.className = "apiframe";
     document.body.appendChild(apiframe);
     apiframe.onload = function() {
