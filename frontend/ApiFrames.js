@@ -49,7 +49,7 @@ function sendRequest(request, parameters, callback, override_id, override_timeou
   }
 }
 
-window.top.addEventListener('message', onMessage);
+window.addEventListener('message', onMessage);
 
 function onMessage(e) {
   if (e.data.response) {

@@ -41,7 +41,13 @@ function redirect(url) {
 }
 
 function apiFrame(id, lambda) {
-  let html = "<script>window.top.postMessage({";
+  // the actual html returned from Google Apps Scripts gets sandboxed inside another 2 layers of iframes:
+  // apiFrame (Frontend)
+  //  > sandboxFrame (GAS)
+  //     > userHtmlFrame (GAS)
+  //        > this code (Backend)
+  // as such, we can either use window.top, or the exact number of parents, but Safari has security issues with window.top
+  let html = "<script>window.parent.parent.parent.postMessage({";
   if (id) {
     html += "id:'" + id.replaceAll("'", "\\'") + "',";
   }
