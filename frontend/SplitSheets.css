@@ -3,6 +3,13 @@
   display: none;
 }
 
+.apiframe {
+  position: absolute;
+  width:0;
+  height:0;
+  border:0;
+}
+
 .owes {
   color: red
 }

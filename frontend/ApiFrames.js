@@ -32,18 +32,20 @@ function sendRequest(request, parameters, callback, id) {
   } else {
     // send a new request
     requestCallbacks[id] = callback;
-    const apiframe_id = IFRAME_PREFIX + id;
     const apiframe = document.createElement("iframe");
-    apiframe.id = apiframe_id;
-    apiframe.style = "position: absolute; width:0; height:0; border:0;";
+    apiframe.id = IFRAME_PREFIX + id;
+    apiframe.className = "apiframe";
     document.body.appendChild(apiframe);
     apiframe.onload = function() {
       window.setTimeout(function() {
-        handleNoMessage(id); // if no message received
-      }, 1000); // 1s after frame loads
+        if (consumeCallback(id)) {
+          // No message was received, redirect to login
+          window.top.location.href = BACKEND_URL;
+        }
+      }, 1000); // allow 1s to send message after frame loads
     };
-    apiframe.src = BACKEND_URL + "?id=" + id + "&" + query.toString();
-    console.log("Request " + id + ": " + query.toString());
+    apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
+    console.log(`Request ${id}: ${query}`);
   }
 }
 
@@ -51,37 +53,21 @@ window.top.addEventListener('message', onMessage);
 
 function onMessage(e) {
   if (e.data.response) {
-    handleResponse(e.data.id, e.data.response);
+    console.log(`Response ${e.data.id}: ${JSON.stringify(e.data.response)}`);
+    consumeCallback(e.data.id)(e.data.response);
   } else if (e.data.error) {
-    handleError(e.data.id, e.data.error);
+    console.error(`Error ${e.data.id}: ${JSON.stringify(e.data.error)}`);
+    consumeCallback(e.data.id);
+    alert('Error: ' + e.data.error);
   } else {
-    console.error("Invalid message: " + JSON.stringify(e.data));
+    console.warn("Invalid message: " + JSON.stringify(e.data));
   }
 }
 
-function getAndRemoveCallback(id) {
+function consumeCallback(id) {
   const callback = requestCallbacks[id];
-  if (callback) delete requestCallbacks[id];
-  const apiframe_id = IFRAME_PREFIX + id;
-  const apiframe = document.getElementById(apiframe_id);
+  delete requestCallbacks[id];
+  const apiframe = document.getElementById(IFRAME_PREFIX + id);
   if (apiframe) apiframe.remove();
   return callback;
-}
-
-function handleNoMessage(id) {
-  if (getAndRemoveCallback(id)) {
-    // No message received, redirect to login
-    window.top.location.href = BACKEND_URL;
-  }
-}
-
-function handleResponse(id, response) {
-  console.log("Response " + id + ": " + JSON.stringify(response));
-  getAndRemoveCallback(id)(response);
-}
-
-function handleError(id, error) {
-  console.error("Error " + id + ": " + JSON.stringify(error));
-  getAndRemoveCallback(id);
-  alert('Error: ' + error);
 }
