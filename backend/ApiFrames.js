@@ -1,4 +1,4 @@
-const EXTERNAL_URL = "https://splitsheets.davidlang.net"
+const EXTERNAL_URL = "http://localhost:8080" //TODO
 const TARGET_ORIGIN = "*"; //TODO make this splitsheets.davidlang.net
 
 // Deployed as WebApp
