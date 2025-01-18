@@ -2,7 +2,7 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp
 const IFRAME_PREFIX = "apiFrame_";
 
 let api = {
-  login: (callback) => sendRequest('login', [], callback, 'login'), // returns the email of the current user
+  login: (callback) => sendRequest('login', [], callback, 'login', 500), // returns the email of the current user
   listSheets: (callback) => sendRequest('listSheets', [], callback, 'listSheets'), // returns known sheets as {id: name}
   addSheet: (sheet_id, name, callback) => sendRequest('addSheet', [sheet_id, name], callback), // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
   removeSheet: (sheet_id, callback) => sendRequest('removeSheet', [sheet_id], callback), // removes a sheet from the list of known sheets, and returns the updated list of sheets
@@ -14,14 +14,14 @@ let api = {
 
 const requestCallbacks = {}; // {id: callback}
 
-function sendRequest(request, parameters, callback, id) {
+function sendRequest(request, parameters, callback, override_id, override_timeout) {
   let query = new URLSearchParams();
   query.set("r", request);
   for (const p of parameters) {
     query.append("p", p);
   }
   if (!callback) callback = (r) => console.log("Response without callback: " + r);
-  if (!id) id = crypto.randomUUID();
+  const id = override_id ?? crypto.randomUUID();
   const existing_callback = requestCallbacks[id];
   if (existing_callback) {
     // tack on to the existing request
@@ -42,7 +42,7 @@ function sendRequest(request, parameters, callback, id) {
           // No message was received, redirect to login
           window.top.location.href = BACKEND_URL;
         }
-      }, 1000); // allow 1s to send message after frame loads
+      }, override_timeout ?? 5000); // allow 5s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
     };
     apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
     console.log(`Request ${id}: ${query}`);

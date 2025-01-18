@@ -1,9 +1,12 @@
 let currentUser;
 
 function onLoad() {
-  viewAdd();
-  api.login((email) => currentUser = email);
-  api.listSheets(updateSheetList);
+  setView("ui_loading");
+  api.login((email) => {
+    currentUser = email;
+    viewAdd();
+    api.listSheets(updateSheetList);
+  });
 }
 
 function sortedKeysByValue(obj) {
