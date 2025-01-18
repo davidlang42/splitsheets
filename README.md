@@ -29,7 +29,7 @@ But by all means, [buy me a coffee](https://ko-fi.com/davidlang42).
 * Create version & update existing deployment: `clasp deploy -i [deploymentId] -d "[description]"`
 
 ## Hardcoded details
-TBA where the app url is hard coded
+* `EXTERNAL_URL` in backend/ApiFrames.js
 
 ## Future features
 See GitHub [issues](https://github.com/davidlang42/splitsheets/issues) for a list of new enhancement or known bugs.
