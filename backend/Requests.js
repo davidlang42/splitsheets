@@ -9,6 +9,19 @@ function listSheets() {
   return p.getProperties();
 }
 
+// returns known sheets as {id: {name, users}}
+function listSheetsAndUsers() {
+  var sheets = listSheets();
+  var result = {};
+  for (const id in sheets) {
+    result[id] = {
+      name: sheets[id],
+      users: listUsers(id)
+    };
+  }
+  return result;
+}
+
 // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
 function addSheet(sheet_id, name) {
   if (!name) {
