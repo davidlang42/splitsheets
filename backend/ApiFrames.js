@@ -15,6 +15,8 @@ function doGet(e) {
         return apiFrame(id, () => login());
       case "listSheets":
         return apiFrame(id, () => listSheets());
+      case "listSheetsAndUsers":
+        return apiFrame(id, () => listSheetsAndUsers());
       case "addSheet":
         return apiFrame(id, () => addSheet(p[0], p[1]));
       case "removeSheet":
