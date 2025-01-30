@@ -5,7 +5,7 @@ function onLoad() {
   api.login((email) => {
     currentUser = email;
     viewAdd();
-    api.listSheets(updateSheetList);
+    api.listSheetsAndUsers(updateSheetList);
   });
 }
 
@@ -29,11 +29,11 @@ function sortedKeysByKey(obj) {
 
 function updateSheetList(sheets) {
   let new_list = "";
-  for (const id of sortedKeysByValue(sheets)) {
+  for (const id of sortedKeysByValueName(sheets)) {
     const q_id = quote(id);
-    const name = sheets[id];
+    const name = sheets[id].name;
     const q_name = quote(name);
-    new_list += "<li class='nav-item'><a class='nav-link btns' onclick='viewBalances(" + q_id + "," + q_name + ")'>" + sheets[id] + "</a></li>";
+    new_list += "<li class='nav-item'><a class='nav-link btns' onclick='viewBalances(" + q_id + "," + q_name + ")'>" + name + "</a></li>";
   }
   document.getElementById("sheet_list").innerHTML = new_list;
 }
