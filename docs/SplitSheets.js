@@ -15,6 +15,12 @@ function sortedKeysByValue(obj) {
   return keys;
 }
 
+function sortedKeysByValueName(obj) {
+  let keys = Object.keys(obj);
+  keys.sort((a, b) => obj[a].name.localeCompare(obj[b].name)); // assumes values are objects with a name string value
+  return keys;
+}
+
 function sortedKeysByKey(obj) {
   let keys = Object.keys(obj);
   keys.sort((a, b) => a.localeCompare(b)); // assumes keys are strings
@@ -89,7 +95,7 @@ function viewAdd(id, name) {
   } else {
     clearAddCostSheets();
   }
-  api.listSheets(updateAddCostSheets);
+  api.listSheetsAndUsers(updateAddCostSheets);
   const test = (new Date()).toISOString();
   var now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -120,17 +126,21 @@ function updateAddCostSheets(sheets) {
   const existing_selected_id = add_cost_sheet.value;
   let found_existing = false;
   let new_list = "";
-  for (const id of sortedKeysByValue(sheets)) {
+  for (const id of sortedKeysByValueName(sheets)) {
     let selected = "";
     if (id == existing_selected_id) {
       selected = " selected";
       found_existing = true;
     }
-    new_list += "<option value=" + quote(id) + selected + ">" + sheets[id] + "</option>";
+    new_list += "<option value=" + quote(id) + selected + ">" + sheets[id].name + "</option>";
   }
   add_cost_sheet.innerHTML = new_list;
   if (!found_existing) {
-    changeCostSheet();
+    if (add_cost_sheet.value in sheets) {
+      updateAddCostUsers(sheets[add_cost_sheet.value].users)
+    } else {
+      changeCostSheet();
+    }
   }
 }
 
