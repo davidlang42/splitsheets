@@ -3,9 +3,11 @@ let currentUser;
 function onLoad() {
   setView("ui_loading");
   api.login((email) => {
-    currentUser = email;
-    viewAdd();
-    api.listSheets(updateSheetList);
+    if (currentUser != email) {
+      currentUser = email;
+      viewAdd();
+      api.listSheets(updateSheetList);
+    }
   });
 }
 
@@ -33,18 +35,23 @@ function updateSheetList(sheets) {
 }
 
 function setView(view_id) {
+  let changed = false;
   for (const e of document.getElementsByClassName("ui-view")) {
     if (e.id == view_id) {
-      e.style.display = 'inherit';
+      if (e.style.display != 'inherit') {
+        e.style.display = 'inherit';
+        changed = true;
+      }
     } else {
       e.style.display = 'none';
     }
   }
   $('.navbar-collapse').collapse('hide');
+  return changed;
 }
 
 function quote(s) {
-  return '"' + s.replaceAll('"','\\"').replaceAll("'","\\'") + '"';
+  return '"' + s.replaceAll('"', '\\"').replaceAll("'", "\\'") + '"';
 }
 
 // ui_balance
@@ -64,13 +71,15 @@ function viewBalancesWithoutUpdatingList(id, name) {
 
 function clearBalanceList(placeholder) {
   document.getElementById("balance_list").innerHTML = placeholder;
+  document.getElementById("balance_last_updated").innerHTML = "";
 }
 
-function updateBalanceList(balances) {
+function updateBalanceList(response) {
+  const balances = response.balances;
   let new_list = "";
   for (const email of sortedKeysByKey(balances)) {
     let balance = balances[email];
-    balance = Math.round(balance * 100) / 100
+    balance = Math.round(balance * 100) / 100;
     if (balance > 0) {
       new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
@@ -80,30 +89,32 @@ function updateBalanceList(balances) {
     }
   }
   document.getElementById("balance_list").innerHTML = new_list;
+  document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
 }
 
 // ui_add (cost)
 
 function viewAdd(id, name) {
-  if (id && name) {
-    initialPopulateAddCostSheets(id, name);
-  } else {
-    clearAddCostSheets();
+  const changed_view = setView("ui_add");
+  if (changed_view) {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
+    document.getElementById("add_cost_description").value = "";
+    document.getElementById("add_cost_expense").checked = true;
+    setCostType(true);
+    document.getElementById("add_cost_amount").value = "";
+    document.getElementById("add_cost_check_all").checked = true;
+    changeCostForAll();
+    document.getElementById("add_cost_even").checked = true;
+    setCostShares(true, false);
+    if (id && name) {
+      initialPopulateAddCostSheets(id, name);
+    } else {
+      clearAddCostSheets();
+    }
   }
   api.listSheets(updateAddCostSheets);
-  const test = (new Date()).toISOString();
-  var now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
-  document.getElementById("add_cost_description").value = "";
-  document.getElementById("add_cost_expense").checked = true;
-  setCostType(true);
-  document.getElementById("add_cost_amount").value = "";
-  document.getElementById("add_cost_check_all").checked = true;
-  changeCostForAll();
-  document.getElementById("add_cost_even").checked = true;
-  setCostShares(true, false);
-  setView("ui_add");
 }
 
 function initialPopulateAddCostSheets(id, name) {
@@ -196,9 +207,11 @@ function updateAddCostUsersTableOnly(users) {
     new_html += "</td>";
     new_html += "</tr>";
   }
-  table.innerHTML = new_html;
-  setCostShares(document.getElementById("add_cost_even").checked, document.getElementById("add_cost_by_percent").checked);
-  setCostForAllState();
+  if (table.innerHTML != new_html) {
+    table.innerHTML = new_html;
+    setCostShares(document.getElementById("add_cost_even").checked, document.getElementById("add_cost_by_percent").checked);
+    setCostForAllState();
+  }
 }
 
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
@@ -236,7 +249,7 @@ function setCostShares(is_even, is_percent) {
     if (count == 0) {
       input_value = null;
     } else {
-      input_value = 100/count;
+      input_value = 100 / count;
     }
   }
   const input_visibility = !is_even ? "inherit" : "hidden";
@@ -486,7 +499,7 @@ function addNewSheet() {
       alert('Please enter the ID or link for the existing Google Sheet');
       return;
     }
-    existing = existing.replaceAll('\\','/');
+    existing = existing.replaceAll('\\', '/');
     if (existing.startsWith(SPREADSHEET_LINK_PREFIX)) {
       existing = existing.substring(SPREADSHEET_LINK_PREFIX.length);
       existing = existing.split("/")[0];

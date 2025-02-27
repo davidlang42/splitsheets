@@ -72,7 +72,10 @@ function listBalances(sheet_id, _sheet_already_open) {
       result[email] = row[c_owed];
     }
   }
-  return result;
+  return {
+    last_updated: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'EEE dd MMM yyyy HH:mm:ss zzz'),
+    balances: result
+  };
 }
 
 // return users for a given sheet as {email: alias}

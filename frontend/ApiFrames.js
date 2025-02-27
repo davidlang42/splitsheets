@@ -11,20 +11,32 @@ let api = {
   removeSheet: (sheet_id, callback) => sendRequest('removeSheet', [sheet_id], callback), // removes a sheet from the list of known sheets, and returns the updated list of sheets
   createSheet: (name, callback) => sendRequest('createSheet', [name], callback), // creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
   addCost: (sheet_id, date, description, amount, paid_by, paid_for, split, callback) => sendRequest('addCost', [sheet_id, date, description, amount, paid_by, paid_for, split], callback), // append a new cost row to the given sheet, then return the balances as {email: owed}
-  listBalances: (sheet_id, callback) => sendRequest('listBalances', [sheet_id], callback), // return balances from a given sheet as {email: owed}
-  listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback), // return users for a given sheet as {email: alias}
+  listBalances: (sheet_id, callback) => sendRequest('listBalances', [sheet_id], callback, 'listBalances_' + sheet_id), // return balances from a given sheet as {email: owed}
+  listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback, 'listUsers_' + sheet_id), // return users for a given sheet as {email: alias}
 };
 
 const requestCallbacks = {}; // {id: callback}
 
-function sendRequest(request, parameters, callback, override_id, override_timeout) {
+function sendRequest(request, parameters, callback, cache_id, override_timeout) {
+  if (cache_id && callback) {
+    const cached_response = window.localStorage.getItem(cache_id);
+    if (cached_response) {
+      console.log(`Cached ${cache_id}: ${cached_response}`);
+      callback(JSON.parse(cached_response));
+    }
+    const original_callback = callback;
+    callback = function(r) {
+      original_callback(r);
+      window.localStorage.setItem(cache_id, JSON.stringify(r));
+    }
+  }
   let query = new URLSearchParams();
   query.set("r", request);
   for (const p of parameters) {
     query.append("p", p);
   }
   if (!callback) callback = (r) => console.log("Response without callback: " + r);
-  const id = override_id ?? crypto.randomUUID();
+  const id = cache_id ?? crypto.randomUUID();
   const existing_callback = requestCallbacks[id];
   if (existing_callback) {
     // tack on to the existing request
