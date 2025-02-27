@@ -49,7 +49,7 @@ function setView(view_id) {
 }
 
 function quote(s) {
-  return '"' + s.replaceAll('"','\\"').replaceAll("'","\\'") + '"';
+  return '"' + s.replaceAll('"', '\\"').replaceAll("'", "\\'") + '"';
 }
 
 // ui_balance
@@ -94,7 +94,7 @@ function viewAdd(id, name) {
   if (changed_view) {
     var now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
+    document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
     document.getElementById("add_cost_description").value = "";
     document.getElementById("add_cost_expense").checked = true;
     setCostType(true);
@@ -202,9 +202,11 @@ function updateAddCostUsersTableOnly(users) {
     new_html += "</td>";
     new_html += "</tr>";
   }
-  table.innerHTML = new_html;
-  setCostShares(document.getElementById("add_cost_even").checked, document.getElementById("add_cost_by_percent").checked);
-  setCostForAllState();
+  if (table.innerHTML != new_html) {
+    table.innerHTML = new_html;
+    setCostShares(document.getElementById("add_cost_even").checked, document.getElementById("add_cost_by_percent").checked);
+    setCostForAllState();
+  }
 }
 
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
@@ -242,7 +244,7 @@ function setCostShares(is_even, is_percent) {
     if (count == 0) {
       input_value = null;
     } else {
-      input_value = 100/count;
+      input_value = 100 / count;
     }
   }
   const input_visibility = !is_even ? "inherit" : "hidden";
@@ -492,7 +494,7 @@ function addNewSheet() {
       alert('Please enter the ID or link for the existing Google Sheet');
       return;
     }
-    existing = existing.replaceAll('\\','/');
+    existing = existing.replaceAll('\\', '/');
     if (existing.startsWith(SPREADSHEET_LINK_PREFIX)) {
       existing = existing.substring(SPREADSHEET_LINK_PREFIX.length);
       existing = existing.split("/")[0];

@@ -12,7 +12,7 @@ let api = {
   createSheet: (name, callback) => sendRequest('createSheet', [name], callback), // creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
   addCost: (sheet_id, date, description, amount, paid_by, paid_for, split, callback) => sendRequest('addCost', [sheet_id, date, description, amount, paid_by, paid_for, split], callback), // append a new cost row to the given sheet, then return the balances as {email: owed}
   listBalances: (sheet_id, callback) => sendRequest('listBalances', [sheet_id], callback), // return balances from a given sheet as {email: owed}
-  listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback), // return users for a given sheet as {email: alias}
+  listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback, 'listUsers_' + sheet_id), // return users for a given sheet as {email: alias}
 };
 
 const requestCallbacks = {}; // {id: callback}
