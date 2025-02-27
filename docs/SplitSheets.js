@@ -5,7 +5,19 @@ function onLoad() {
   api.login((email) => {
     if (currentUser != email) {
       currentUser = email;
-      viewAdd();
+      const id = new URLSearchParams(window.location.search).get('id');
+      if (id) {
+        api.listSheets((sheets) => {
+          const name = sheets[id];
+          if (name) {
+            viewBalances(id, name);
+          } else {
+            viewManage();
+          }
+        });
+      } else {
+        viewAdd();
+      }
       api.listSheets(updateSheetList);
     }
   });
