@@ -69,6 +69,7 @@ function viewBalancesWithoutUpdatingList(id, name) {
 
 function clearBalanceList(placeholder) {
   document.getElementById("balance_list").innerHTML = placeholder;
+  document.getElementById("balance_last_updated").innerHTML = "";
 }
 
 function updateBalanceList(response) {
@@ -86,7 +87,7 @@ function updateBalanceList(response) {
     }
   }
   document.getElementById("balance_list").innerHTML = new_list;
-  document.getElementById("balance_last_updated").innerHTML = response.last_updated;
+  document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
 }
 
 // ui_add (cost)
