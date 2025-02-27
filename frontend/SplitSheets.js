@@ -69,7 +69,8 @@ function clearBalanceList(placeholder) {
 function updateBalanceList(balances) {
   let new_list = "";
   for (const email of sortedKeysByKey(balances)) {
-    const balance = balances[email];
+    let balance = balances[email];
+    balance = Math.round(balance * 100) / 100
     if (balance > 0) {
       new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
