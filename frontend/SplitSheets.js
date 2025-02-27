@@ -4,7 +4,7 @@ function onLoad() {
   setView("ui_loading");
   api.login((email) => {
     currentUser = email;
-    viewAdd(); //TODO confirm this can be called twice
+    viewAdd();
     api.listSheets(updateSheetList);
   });
 }
@@ -21,7 +21,7 @@ function sortedKeysByKey(obj) {
   return keys;
 }
 
-function updateSheetList(sheets) { //TODO confirm this can be called twice
+function updateSheetList(sheets) {
   let new_list = "";
   for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);
@@ -33,14 +33,19 @@ function updateSheetList(sheets) { //TODO confirm this can be called twice
 }
 
 function setView(view_id) {
+  let changed = false;
   for (const e of document.getElementsByClassName("ui-view")) {
     if (e.id == view_id) {
-      e.style.display = 'inherit';
+      if (e.style.display != 'inherit') {
+        e.style.display = 'inherit';
+        changed = true;
+      }
     } else {
       e.style.display = 'none';
     }
   }
   $('.navbar-collapse').collapse('hide');
+  return changed;
 }
 
 function quote(s) {
@@ -85,25 +90,26 @@ function updateBalanceList(balances) {
 // ui_add (cost)
 
 function viewAdd(id, name) {
-  if (id && name) {
-    initialPopulateAddCostSheets(id, name);
-  } else {
-    clearAddCostSheets();
+  const changed_view = setView("ui_add");
+  if (changed_view) {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
+    document.getElementById("add_cost_description").value = "";
+    document.getElementById("add_cost_expense").checked = true;
+    setCostType(true);
+    document.getElementById("add_cost_amount").value = "";
+    document.getElementById("add_cost_check_all").checked = true;
+    changeCostForAll();
+    document.getElementById("add_cost_even").checked = true;
+    setCostShares(true, false);
+    if (id && name) {
+      initialPopulateAddCostSheets(id, name);
+    } else {
+      clearAddCostSheets();
+    }
   }
   api.listSheets(updateAddCostSheets);
-  const test = (new Date()).toISOString();
-  var now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
-  document.getElementById("add_cost_description").value = "";
-  document.getElementById("add_cost_expense").checked = true;
-  setCostType(true);
-  document.getElementById("add_cost_amount").value = "";
-  document.getElementById("add_cost_check_all").checked = true;
-  changeCostForAll();
-  document.getElementById("add_cost_even").checked = true;
-  setCostShares(true, false);
-  setView("ui_add");
 }
 
 function initialPopulateAddCostSheets(id, name) {
@@ -116,7 +122,7 @@ function clearAddCostSheets() {
   changeCostSheet();
 }
 
-function updateAddCostSheets(sheets) { //TODO confirm this can be called twice
+function updateAddCostSheets(sheets) {
   const add_cost_sheet = document.getElementById("add_cost_sheet");
   const existing_selected_id = add_cost_sheet.value;
   let found_existing = false;
@@ -425,7 +431,7 @@ function clearManageSheets(placeholder) {
   document.getElementById("manage_sheets").innerHTML = "&nbsp;&nbsp;" + placeholder;
 }
 
-function updateManageSheets(sheets) { //TODO confirm this can be called twice
+function updateManageSheets(sheets) {
   let new_list = "";
   for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);

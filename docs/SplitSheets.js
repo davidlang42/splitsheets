@@ -33,14 +33,19 @@ function updateSheetList(sheets) {
 }
 
 function setView(view_id) {
+  let changed = false;
   for (const e of document.getElementsByClassName("ui-view")) {
     if (e.id == view_id) {
-      e.style.display = 'inherit';
+      if (e.style.display != 'inherit') {
+        e.style.display = 'inherit';
+        changed = true;
+      }
     } else {
       e.style.display = 'none';
     }
   }
   $('.navbar-collapse').collapse('hide');
+  return changed;
 }
 
 function quote(s) {
@@ -85,25 +90,26 @@ function updateBalanceList(balances) {
 // ui_add (cost)
 
 function viewAdd(id, name) {
-  if (id && name) {
-    initialPopulateAddCostSheets(id, name);
-  } else {
-    clearAddCostSheets();
+  const changed_view = setView("ui_add");
+  if (changed_view) {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
+    document.getElementById("add_cost_description").value = "";
+    document.getElementById("add_cost_expense").checked = true;
+    setCostType(true);
+    document.getElementById("add_cost_amount").value = "";
+    document.getElementById("add_cost_check_all").checked = true;
+    changeCostForAll();
+    document.getElementById("add_cost_even").checked = true;
+    setCostShares(true, false);
+    if (id && name) {
+      initialPopulateAddCostSheets(id, name);
+    } else {
+      clearAddCostSheets();
+    }
   }
   api.listSheets(updateAddCostSheets);
-  const test = (new Date()).toISOString();
-  var now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById("add_cost_date").value = now.toISOString().slice(0,16);
-  document.getElementById("add_cost_description").value = "";
-  document.getElementById("add_cost_expense").checked = true;
-  setCostType(true);
-  document.getElementById("add_cost_amount").value = "";
-  document.getElementById("add_cost_check_all").checked = true;
-  changeCostForAll();
-  document.getElementById("add_cost_even").checked = true;
-  setCostShares(true, false);
-  setView("ui_add");
 }
 
 function initialPopulateAddCostSheets(id, name) {
