@@ -73,7 +73,7 @@ function listBalances(sheet_id, _sheet_already_open) {
     }
   }
   return {
-    last_updated: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''),
+    last_updated: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'ddd dd MMM HH:mm:ss'),
     balances: result
   };
 }
