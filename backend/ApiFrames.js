@@ -41,7 +41,7 @@ function doGet(e) {
 }
 
 function redirect(url, warning, auto) {
-  var html = "<h2 style='font-family: sans-serif;'><a href='" + url + "' target='_top'>Login successful, click here to launch SplitSheets</a></h2>";
+  var html = "<h2 style='font-family: sans-serif;'><a href='" + url + "' target='_top'>Login successul, click here to launch SplitSheets</a></h2>";
   if (warning) html += "<h3>" + warning + "</h3>";
   if (auto) html += "<script>window.open('"+url+"','_top');</script>";
   return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
