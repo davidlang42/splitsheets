@@ -37,7 +37,7 @@ function createSheet(name) {
   return listSheets();
 }
 
-// append a new cost row to the given sheet, then return the balances as {email: owed}
+// append a new cost row to the given sheet, then return the balances as {alias: owed}
 function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
   var sheet = openSheet(sheet_id);
   var costs = sheet.getSheetByName(COSTS_SHEET);
@@ -80,7 +80,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   return listBalances(sheet_id, sheet);
 }
 
-// return balances from a given sheet as {email: owed}
+// return balances from a given sheet as {alias: owed}
 function listBalances(sheet_id, _sheet_already_open) {
   var sheet = _sheet_already_open ?? openSheet(sheet_id);
   var balances = sheet.getSheetByName(BALANCES_SHEET);
@@ -89,12 +89,18 @@ function listBalances(sheet_id, _sheet_already_open) {
   if (!headers) throw new Error(BALANCES_SHEET + " does not contain a header row");
   var c_person = findColumn(headers, PERSON_COLUMN);
   var c_owed = findColumn(headers, OWED_COLUMN);
+  var users = listUsers(sheet_id, sheet);
   var result = {};
   for (var i = 1; i < values.length; i++) {
-    var row = values[i];
-    var email = row[c_person];
+    const row = values[i];
+    const email = row[c_person];
     if (email) {
-      result[email] = row[c_owed];
+      const alias = users[email];
+      if (alias) {
+        result[alias] = row[c_owed];
+      } else {
+        result[email] = row[c_owed];
+      }
     }
   }
   return {
@@ -104,8 +110,8 @@ function listBalances(sheet_id, _sheet_already_open) {
 }
 
 // return users for a given sheet as {email: alias}
-function listUsers(sheet_id) {
-  var file = openFile(sheet_id);
+function listUsers(sheet_id, _sheet_already_open) {
+  var file = _sheet_already_open ?? openFile(sheet_id); // technically these are different types, but both Spreadsheet and File have methods: getOwner, getViewers, getEditors
   var users = {};
   const owner = file.getOwner();
   const email = owner.getEmail();
