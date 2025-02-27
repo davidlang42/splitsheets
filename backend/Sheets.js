@@ -1,3 +1,5 @@
+const SPREADSHEET_LINK_PREFIX = "https://docs.google.com/spreadsheets/d/";
+
 // returns a Spreadsheet object, or null if it can't be accessed 
 function tryOpenSheet(id) {
   try {
