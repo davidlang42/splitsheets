@@ -52,6 +52,31 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
   row[findColumn(headers, SPLIT_COLUMN)] = split;
   costs.appendRow(row);
+  const notify_emails = [];
+  const my_email = Session.getActiveUser().getEmail();
+  if (paid_by != my_email) notify_emails.push(paid_by);
+  const paid_for_split = paid_for.split(",");
+  for (const email of paid_for_split) {
+    if (email != my_email && !notify_emails.includes(email)) notify_emails.push(email);
+  }
+  var p = PropertiesService.getUserProperties();
+  var sheet_name = p.getProperty(sheet_id) ?? sheet.getName();
+  let body = "<p>" + my_email + " added a $" + amount + " cost called '" + description + "' to the '" + sheet_name + "' SplitSheet.<p>";
+  body += "<p>It was paid by " + paid_by + " for:</p><ul>";
+  for (const email of paid_for_split) {
+    body += "<li>" + email + "</li>";
+  }
+  body += "</ul>";
+  if (split) body += "<p>Split in the ratios: " + split + "</p>";
+  body += "<p>Click here to <a href='" + EXTERNAL_URL + "'>view balances</a>, or open the Google Sheet <a href='" + SPREADSHEET_LINK_PREFIX + sheet_id + "'>for details</a>.</p>";
+  if (description) {
+    description = "'" + description + "'";
+  } else {
+    description = "Cost"
+  }
+  for (const email of notify_emails) {
+    GmailApp.sendEmail(email, description + " added to " + sheet_name, null, { htmlBody: body, name: "SplitSheets" });
+  }
   return listBalances(sheet_id, sheet);
 }
 
