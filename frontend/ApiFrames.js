@@ -21,7 +21,7 @@ function sendRequest(request, parameters, callback, cache_id, override_timeout) 
   if (cache_id && callback) {
     const cached_response = window.localStorage.getItem(cache_id);
     if (cached_response) {
-      console.log(`Cached ${e.data.id}: ${cached_response}`);
+      console.log(`Cached ${cache_id}: ${cached_response}`);
       callback(JSON.parse(cached_response));
     }
     const original_callback = callback;
