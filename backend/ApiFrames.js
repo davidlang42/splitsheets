@@ -5,7 +5,9 @@ const TARGET_ORIGIN = "*"; // needs to be "*" to test locally
 function doGet(e) {
   if (!e.parameter.r) {
     // auth & redirect
-    return redirect(EXTERNAL_URL);
+    let auth_count = e.parameter.a ?? 0;
+    auth_count += 1;
+    return redirect(EXTERNAL_URL + "?a=" + auth_count);
   } else {
     // apiFrame request
     let id = e.parameter.id;
