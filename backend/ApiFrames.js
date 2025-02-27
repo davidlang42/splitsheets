@@ -1,5 +1,5 @@
 const EXTERNAL_URL = "https://splitsheets.davidlang.net"
-const TARGET_ORIGIN = "*"; // needs to be "*" to test locally
+const TARGET_ORIGIN = "*"; // needs to be "*" to test locally, EXTERNAL_URL for production
 
 // Deployed as WebApp
 function doGet(e) {
