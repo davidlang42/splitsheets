@@ -60,7 +60,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
     if (email != my_email && !notify_emails.includes(email)) notify_emails.push(email);
   }
   var p = PropertiesService.getUserProperties();
-  var sheet_name = sheet.getName();
+  var sheet_name = p.getProperty(sheet_id) ?? sheet.getName();
   let body = "<p>" + my_email + " added a $" + amount + " cost called '" + description + "' to the '" + sheet_name + "' SplitSheet.<p>";
   body += "<p>It was paid by " + paid_by + " for:</p><ul>";
   for (const email of paid_for_split) {
