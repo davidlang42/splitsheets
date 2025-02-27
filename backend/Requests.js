@@ -89,7 +89,7 @@ function listBalances(sheet_id, _sheet_already_open) {
   if (!headers) throw new Error(BALANCES_SHEET + " does not contain a header row");
   var c_person = findColumn(headers, PERSON_COLUMN);
   var c_owed = findColumn(headers, OWED_COLUMN);
-  var users = listUsers(sheet_id, sheet);
+  var users = listUsers(sheet_id);
   var result = {};
   for (var i = 1; i < values.length; i++) {
     const row = values[i];
@@ -110,8 +110,8 @@ function listBalances(sheet_id, _sheet_already_open) {
 }
 
 // return users for a given sheet as {email: alias}
-function listUsers(sheet_id, _sheet_already_open) {
-  var file = _sheet_already_open ?? openFile(sheet_id); // technically these are different types, but both Spreadsheet and File have methods: getOwner, getViewers, getEditors
+function listUsers(sheet_id) {
+  var file = openFile(sheet_id);
   var users = {};
   const owner = file.getOwner();
   const email = owner.getEmail();
