@@ -71,11 +71,12 @@ function clearBalanceList(placeholder) {
   document.getElementById("balance_list").innerHTML = placeholder;
 }
 
-function updateBalanceList(balances) {
+function updateBalanceList(response) {
+  const balances = response.balances;
   let new_list = "";
   for (const email of sortedKeysByKey(balances)) {
     let balance = balances[email];
-    balance = Math.round(balance * 100) / 100
+    balance = Math.round(balance * 100) / 100;
     if (balance > 0) {
       new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
@@ -85,6 +86,7 @@ function updateBalanceList(balances) {
     }
   }
   document.getElementById("balance_list").innerHTML = new_list;
+  document.getElementById("balance_last_updated").innerHTML = response.last_updated;
 }
 
 // ui_add (cost)
