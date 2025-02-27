@@ -17,14 +17,26 @@ let api = {
 
 const requestCallbacks = {}; // {id: callback}
 
-function sendRequest(request, parameters, callback, override_id, override_timeout) {
+function sendRequest(request, parameters, callback, cache_id, override_timeout) {
+  if (cache_id && callback) {
+    const cached_response = window.localStorage.getItem(cache_id);
+    if (cached_response) {
+      console.log(`Cached ${e.data.id}: ${cached_response}`);
+      callback(JSON.parse(cached_response));
+    }
+    const original_callback = callback;
+    callback = function(r) {
+      original_callback(r);
+      window.localStorage.setItem(cache_id, JSON.stringify(r));
+    }
+  }
   let query = new URLSearchParams();
   query.set("r", request);
   for (const p of parameters) {
     query.append("p", p);
   }
   if (!callback) callback = (r) => console.log("Response without callback: " + r);
-  const id = override_id ?? crypto.randomUUID();
+  const id = cache_id ?? crypto.randomUUID();
   const existing_callback = requestCallbacks[id];
   if (existing_callback) {
     // tack on to the existing request
