@@ -73,7 +73,7 @@ function listBalances(sheet_id, _sheet_already_open) {
     }
   }
   return {
-    last_updated: new Date().toLocaleString(Session.getActiveUserLocale()),
+    last_updated: new Date().toString(),
     balances: result
   };
 }
