@@ -68,7 +68,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   }
   body += "</ul>";
   if (split) body += "<p>Split in the ratios: " + split + "</p>";
-  body += "<p>Click here to <a href='" + EXTERNAL_URL + "?id=" + sheet_id + "'>view balances</a>, or open the Google Sheet <a href='" + SPREADSHEET_LINK_PREFIX + sheet_id + "'>for details</a>.</p>";
+  body += "<p>Click here to <a href='" + EXTERNAL_URL + "'>view balances</a>, or open the Google Sheet <a href='" + SPREADSHEET_LINK_PREFIX + sheet_id + "'>for details</a>.</p>";
   if (description) {
     description = "'" + description + "'";
   } else {
