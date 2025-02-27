@@ -72,10 +72,7 @@ function listBalances(sheet_id, _sheet_already_open) {
       result[email] = row[c_owed];
     }
   }
-  return {
-    last_updated: new Date().toString(),
-    balances: result
-  };
+  return result;
 }
 
 // return users for a given sheet as {email: alias}
