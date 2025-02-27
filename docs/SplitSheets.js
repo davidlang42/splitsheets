@@ -3,9 +3,11 @@ let currentUser;
 function onLoad() {
   setView("ui_loading");
   api.login((email) => {
-    currentUser = email;
-    viewAdd();
-    api.listSheets(updateSheetList);
+    if (currentUser != email) {
+      currentUser = email;
+      viewAdd();
+      api.listSheets(updateSheetList);
+    }
   });
 }
 
