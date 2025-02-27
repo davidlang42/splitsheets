@@ -2,7 +2,7 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp
 const IFRAME_PREFIX = "apiFrame_";
 
 const params = new URLSearchParams(window.location.search);
-const auth_count = params.get('a');
+const auth_count = params.get('a') ?? 0;
 
 let api = {
   login: (callback) => sendRequest('login', [], callback, 'login', 1), // returns the email of the current user

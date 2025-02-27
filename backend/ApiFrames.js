@@ -5,9 +5,12 @@ const TARGET_ORIGIN = "*"; // needs to be "*" to test locally
 function doGet(e) {
   if (!e.parameter.r) {
     // auth & redirect
-    let auth_count = e.parameter.a ?? 0;
+    let auth_count = parseInt(e.parameter.a);
+    if (isNaN(auth_count) || auth_count < 0) auth_count = 0;
     auth_count += 1;
-    return redirect(EXTERNAL_URL + "?a=" + auth_count);
+    let warning = null;
+    if (auth_count > 1) warning = "Your browser appears to be have redirected back to the login page " + auth_count + " times, you may need to allow third-party cookies for SplitSheets to work.";
+    return redirect(EXTERNAL_URL + "?a=" + auth_count, warning, auth_count == 1);
   } else {
     // apiFrame request
     let id = e.parameter.id;
@@ -37,8 +40,10 @@ function doGet(e) {
   }
 }
 
-function redirect(url) {
-  var html = "<h2 style='font-family: sans-serif;'><a href='" + url + "' target='_top'>Login successul, click here to launch SplitSheets</a></h2><script>window.open('"+url+"','_top');</script>";
+function redirect(url, warning, auto) {
+  var html = "<h2 style='font-family: sans-serif;'><a href='" + url + "' target='_top'>Login successul, click here to launch SplitSheets</a></h2>";
+  if (warning) html += "<h3>" + warning + "</h3>";
+  if (auto) html += "<script>window.open('"+url+"','_top');</script>";
   return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
