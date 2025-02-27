@@ -4,7 +4,7 @@ function onLoad() {
   setView("ui_loading");
   api.login((email) => {
     currentUser = email;
-    viewAdd();
+    viewAdd(); //TODO confirm this can be called twice
     api.listSheets(updateSheetList);
   });
 }
@@ -21,7 +21,7 @@ function sortedKeysByKey(obj) {
   return keys;
 }
 
-function updateSheetList(sheets) {
+function updateSheetList(sheets) { //TODO confirm this can be called twice
   let new_list = "";
   for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);
@@ -116,7 +116,7 @@ function clearAddCostSheets() {
   changeCostSheet();
 }
 
-function updateAddCostSheets(sheets) {
+function updateAddCostSheets(sheets) { //TODO confirm this can be called twice
   const add_cost_sheet = document.getElementById("add_cost_sheet");
   const existing_selected_id = add_cost_sheet.value;
   let found_existing = false;
@@ -425,7 +425,7 @@ function clearManageSheets(placeholder) {
   document.getElementById("manage_sheets").innerHTML = "&nbsp;&nbsp;" + placeholder;
 }
 
-function updateManageSheets(sheets) {
+function updateManageSheets(sheets) { //TODO confirm this can be called twice
   let new_list = "";
   for (const id of sortedKeysByValue(sheets)) {
     const q_id = quote(id);
