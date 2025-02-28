@@ -52,31 +52,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
   row[findColumn(headers, SPLIT_COLUMN)] = split;
   costs.appendRow(row);
-  const notify_emails = [];
-  const my_email = Session.getActiveUser().getEmail();
-  if (paid_by != my_email) notify_emails.push(paid_by);
-  const paid_for_split = paid_for.split(",");
-  for (const email of paid_for_split) {
-    if (email != my_email && !notify_emails.includes(email)) notify_emails.push(email);
-  }
-  var sheet_name = sheet.getName();
-  var users = listUsers(sheet_id);
-  let body = "<p>" + (users[my_email] ?? my_email) + " added a $" + amount + " cost called '" + description + "' to the '" + sheet_name + "' SplitSheet.<p>";
-  body += "<p>It was paid by " + (users[paid_by] ?? paid_by) + " for:</p><ul>";
-  for (const email of paid_for_split) {
-    body += "<li>" + (users[email] ?? email) + "</li>";
-  }
-  body += "</ul>";
-  if (split) body += "<p>Split in the ratios: " + split + "</p>";
-  body += "<p>Click here to <a href='" + EXTERNAL_URL + "?id=" + sheet_id + "'>view balances</a>, or open the Google Sheet <a href='" + SPREADSHEET_LINK_PREFIX + sheet_id + "'>for details</a>.</p>";
-  if (description) {
-    description = "'" + description + "'";
-  } else {
-    description = "Cost"
-  }
-  for (const email of notify_emails) {
-    GmailApp.sendEmail(email, description + " added to " + sheet_name, null, { htmlBody: body, name: "SplitSheets" });
-  }
+  sendAddCostEmails(sheet_id, sheet.getName(), description, amount, paid_by, paid_for, split, listUsers(sheet_id));
   return listBalances(sheet_id, sheet);
 }
 
@@ -110,8 +86,8 @@ function listBalances(sheet_id, _sheet_already_open) {
 }
 
 // return users for a given sheet as {email: alias}
-function listUsers(sheet_id) {
-  var file = openFile(sheet_id);
+function listUsers(sheet_id, _file_already_open) {
+  var file = _file_already_open ?? openFile(sheet_id);
   var users = {};
   const owner = file.getOwner();
   const email = owner.getEmail();
@@ -125,4 +101,30 @@ function listUsers(sheet_id) {
     users[email] = viewer.getName() ?? email.split("@")[0];
   }
   return users;
+}
+
+// add a user to the given sheet, then return users as {email: alias}
+function addUser(sheet_id, email) {
+  var file = openFile(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = file.getOwner();
+  if (owner != this_user) {
+    sendUserRequestEmail(this_user, 'add', email, sheet_id, file.getName(), owner);
+    throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
+  }
+  file.addEditor(email);
+  return listUsers(sheet_id, file);
+}
+
+// remove a user from the given sheet, then return users as {email: alias}
+function removeUser(sheet_id, email) {
+  var file = openFile(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = file.getOwner();
+  if (owner != this_user) {
+    sendUserRequestEmail(this_user, 'remove', email, sheet_id, file.getName(), owner);
+    throw new Error("You must be the owner to remove a user from this sheet. An email has been sent to " + owner + " requesting them to remove this user.");
+  }
+  file.removeEditor(email);
+  return listUsers(sheet_id, file);
 }
