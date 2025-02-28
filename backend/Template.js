@@ -14,7 +14,16 @@ const OWED_COLUMN = "Owed";
 
 const TEMPLATE_ID = "1k8oeNvRP1kqNGrHdEjhIwC8YdGBlh2KpejukPiKJ8n8";
 /* Template contains some complex formulas, written neatly here for completeness:
-C2=IFNOTBLANK(
+"Costs" sheet:
+A1:6=[Date,Description,Amount,Paid By,Paid For,Split]
+
+"Balances" sheet:
+A1:4=[Person,Total Paid By,Total Paid For,Owed]
+A2=sort(unique(transpose(split(join(",",_COSTS("Paid By"),_COSTS("Paid For")),",", false, false))))
+B2(:B)=IF($A2="", "", SUMIF(_COSTS("Paid By"),$A2,_COSTS("Amount")))
+D2(:D)=IF($A2="", "", B2-C2)
+
+C2(:C)=IFNOTBLANK(
     $A2,
     SUM(
         MAP(
