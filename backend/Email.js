@@ -1,6 +1,6 @@
 function sendUserRequestEmail(requestor, action, email, sheet_id, sheet_name, owner) {
   const sheet_url = SPREADSHEET_LINK_PREFIX + sheet_id;
-  const action_url = EXTERNAL_URL + "?share=" + sheet_id + "&" + action + "=" + email;
+  const action_url = EXTERNAL_URL + "?manage=" + sheet_id + "&" + action + "=" + email;
   const to_from = action == 'add' ? 'to' : 'from';
   const access_removal = action == 'add' ? 'Access' : 'Removal';
   let body = "<p>" + requestor + " has requested you <b>" + action + "</b> " + email + " " + to_from + " the <a href='" + sheet_url + "'>" + sheet_name + "</a> SplitSheet.</p>";
