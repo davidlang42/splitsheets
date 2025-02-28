@@ -140,16 +140,20 @@ function clearAddCostSheets() {
   changeCostSheet();
 }
 
+const CACHE_ID_LAST_ADDED_COST_SHEET_ID = "last_added_cost_sheet_id";
+
 function updateAddCostSheets(sheets) {
   const add_cost_sheet = document.getElementById("add_cost_sheet");
+  const last_added_cost_sheet_id = window.localStorage.getItem(CACHE_ID_LAST_ADDED_COST_SHEET_ID);
   const existing_selected_id = add_cost_sheet.value;
+  const find_id = existing_selected_id && existing_selected_id.length ? existing_selected_id : last_added_cost_sheet_id;
   let found_existing = false;
   let new_list = "";
   for (const id of sortedKeysByValue(sheets)) {
     let selected = "";
-    if (id == existing_selected_id) {
+    if (id == find_id) {
       selected = " selected";
-      found_existing = true;
+      found_existing = find_id === existing_selected_id;
     }
     new_list += "<option value=" + quote(id) + selected + ">" + sheets[id] + "</option>";
   }
@@ -182,8 +186,18 @@ function clearAddCostUsersTableOnly() {
 
 function updateAddCostUsers(users) {
   updateUsersForElementId("add_cost_paid_by", users, currentUser);
-  updateUsersForElementId("add_cost_transfer_to", users);
+  const non_current_user = firstNonCurrentUser(users);
+  updateUsersForElementId("add_cost_transfer_to", users, non_current_user);
   updateAddCostUsersTableOnly(users);
+}
+
+function firstNonCurrentUser(users) {
+  for (const email of sortedKeysByKey(users)) {
+    if (email != currentUser) {
+      return email;
+    }
+  }
+  return null;
 }
 
 function updateUsersForElementId(element_id, users, default_select_email) {
@@ -425,6 +439,7 @@ function addCost() {
     clearBalanceList("Adding transfer...");
     api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", updateBalanceList)
   }
+  window.localStorage.setItem(CACHE_ID_LAST_ADDED_COST_SHEET_ID, sheet_id);
   const sheet_name = getOptionText(sheet_select, sheet_id);
   viewBalancesWithoutUpdatingList(sheet_id, sheet_name);
 }
