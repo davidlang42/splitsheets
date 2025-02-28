@@ -52,6 +52,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
   row[findColumn(headers, SPLIT_COLUMN)] = split;
   costs.appendRow(row);
+  //TODO move notification emails code into Email.js
   const notify_emails = [];
   const my_email = Session.getActiveUser().getEmail();
   if (paid_by != my_email) notify_emails.push(paid_by);
@@ -110,8 +111,8 @@ function listBalances(sheet_id, _sheet_already_open) {
 }
 
 // return users for a given sheet as {email: alias}
-function listUsers(sheet_id) {
-  var file = openFile(sheet_id);
+function listUsers(sheet_id, _file_already_open) {
+  var file = _file_already_open ?? openFile(sheet_id);
   var users = {};
   const owner = file.getOwner();
   const email = owner.getEmail();
@@ -125,4 +126,30 @@ function listUsers(sheet_id) {
     users[email] = viewer.getName() ?? email.split("@")[0];
   }
   return users;
+}
+
+// add a user to the given sheet, then return users as {email: alias}
+function addUser(sheet_id, email) {
+  var file = openFile(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = file.getOwner();
+  if (owner != this_user) {
+    sendUserRequestEmail(this_user, 'add', email, sheet_id, file.getName(), owner);
+    throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
+  }
+  file.addEditor(email);
+  return listUsers(sheet_id, file);
+}
+
+// remove a user from the given sheet, then return users as {email: alias}
+function removeUser(sheet_id, email) {
+  var file = openFile(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = file.getOwner();
+  if (owner != this_user) {
+    sendUserRequestEmail(this_user, 'remove', email, sheet_id, file.getName(), owner);
+    throw new Error("You must be the owner to remove a user from this sheet. An email has been sent to " + owner + " requesting them to remove this user.");
+  }
+  file.removeEditor(email);
+  return listUsers(sheet_id, file);
 }

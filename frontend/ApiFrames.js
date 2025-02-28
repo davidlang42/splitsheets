@@ -13,6 +13,8 @@ let api = {
   addCost: (sheet_id, date, description, amount, paid_by, paid_for, split, callback) => sendRequest('addCost', [sheet_id, date, description, amount, paid_by, paid_for, split], callback), // append a new cost row to the given sheet, then return the balances as {email: owed}
   listBalances: (sheet_id, callback) => sendRequest('listBalances', [sheet_id], callback, 'listBalances_' + sheet_id), // return balances from a given sheet as {email: owed}
   listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback, 'listUsers_' + sheet_id), // return users for a given sheet as {email: alias}
+  addUser: (sheet_id, email, callback) => sendRequest('addUser', [sheet_id, email], callback), // add a user to the given sheet, then return users as {email: alias}
+  removeUser: (sheet_id, email, callback) => sendRequest('removeUser', [sheet_id, email], callback), // remove a user from the given sheet, then return users as {email: alias}
 };
 
 const requestCallbacks = {}; // {id: callback}
