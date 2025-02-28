@@ -63,7 +63,8 @@ function setView(view_id) {
 }
 
 function quote(s) {
-  return '"' + s.replaceAll('"', '\\"').replaceAll("'", "\\'") + '"';
+  s = s.replaceAll("'", '"'); // show double quotes instead of single quotes to avoid JS quoting issues
+  return '"' + s.replaceAll('"', '\\"') + '"';
 }
 
 // ui_balance
