@@ -90,7 +90,7 @@ function updateBalanceList(response) {
   const balances = response.balances;
   let new_list = "";
   for (const alias of sortedKeysByKey(balances)) {
-    let balance = balances[email];
+    let balance = balances[alias];
     balance = Math.round(balance * 100) / 100;
     if (balance > 0) {
       new_list += "<li>" + alias + " is <span class='owed'>owed $" + balance + "</span></li>";
