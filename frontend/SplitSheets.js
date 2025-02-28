@@ -186,8 +186,18 @@ function clearAddCostUsersTableOnly() {
 
 function updateAddCostUsers(users) {
   updateUsersForElementId("add_cost_paid_by", users, currentUser);
-  updateUsersForElementId("add_cost_transfer_to", users);
+  const non_current_user = firstNonCurrentUser(users);
+  updateUsersForElementId("add_cost_transfer_to", users, non_current_user);
   updateAddCostUsersTableOnly(users);
+}
+
+function firstNonCurrentUser(users) {
+  for (const email of sortedKeysByKey(users)) {
+    if (email != currentUser) {
+      return email;
+    }
+  }
+  return null;
 }
 
 function updateUsersForElementId(element_id, users, default_select_email) {
