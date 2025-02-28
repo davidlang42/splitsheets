@@ -21,6 +21,7 @@ function onLoad() {
         api.listSheets((sheets) => {
           const name = sheets[share];
           if (name) {
+            //TODO handle add=, remove=
             viewShare(share, name);
           } else {
             viewManage();
@@ -98,7 +99,7 @@ function updateShareUsers(users) {
     const q_email = quote(email);
     const alias = users[email];
     const q_alias = quote(alias);
-    new_list += "<tr><td>&nbsp;&nbsp;" + alias + "</td><td width=90px><button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteUser(" + q_email + "," + q_alias + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + alias + "</td><td width=40px><button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteUser(" + q_email + "," + q_alias + ")'>🗑</button></td></tr>";
   }
   document.getElementById("share_users").innerHTML = new_list;
 }
@@ -529,7 +530,7 @@ function updateManageSheets(sheets) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
-    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=90px><button class='btn btn-info btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=110px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
   updateSheetList(sheets); // so the menu gets the updates too

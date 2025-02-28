@@ -105,7 +105,9 @@ function listUsers(sheet_id, _file_already_open) {
 
 // add a user to the given sheet, then return users as {email: alias}
 function addUser(sheet_id, email) {
+  //TODO this request fails with "Invalid Email: DriveUser"
   var file = openFile(sheet_id);
+  //TODO need to confirm if user is already an editor of this sheet
   const this_user = Session.getActiveUser().getEmail();
   const owner = file.getOwner();
   if (owner != this_user) {
@@ -113,12 +115,15 @@ function addUser(sheet_id, email) {
     throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
   }
   file.addEditor(email);
+  //TODO send email with link to add sheet
   return listUsers(sheet_id, file);
 }
 
 // remove a user from the given sheet, then return users as {email: alias}
 function removeUser(sheet_id, email) {
+  //TODO this request fails with "Invalid Email: DriveUser"
   var file = openFile(sheet_id);
+  //TODO need to check if this user is an existing editor/viewer of this sheet (also block if owner)
   const this_user = Session.getActiveUser().getEmail();
   const owner = file.getOwner();
   if (owner != this_user) {
@@ -126,5 +131,6 @@ function removeUser(sheet_id, email) {
     throw new Error("You must be the owner to remove a user from this sheet. An email has been sent to " + owner + " requesting them to remove this user.");
   }
   file.removeEditor(email);
+  //TODO send an email saying youve been removed with link to remove the sheet from your list
   return listUsers(sheet_id, file);
 }
