@@ -5,12 +5,23 @@ function onLoad() {
   api.login((email) => {
     if (currentUser != email) {
       currentUser = email;
-      const id = new URLSearchParams(window.location.search).get('id');
+      const query = new URLSearchParams(window.location.search);
+      const id = query.get('id');
+      const share = query.get('share');
       if (id) {
         api.listSheets((sheets) => {
           const name = sheets[id];
           if (name) {
             viewBalances(id, name);
+          } else {
+            viewManage();
+          }
+        });
+      } else if (share) {
+        api.listSheets((sheets) => {
+          const name = sheets[share];
+          if (name) {
+            viewShare(share, name);
           } else {
             viewManage();
           }
@@ -65,6 +76,52 @@ function setView(view_id) {
 function quote(s) {
   s = s.replaceAll("'", '"'); // show double quotes instead of single quotes to avoid JS quoting issues
   return '"' + s.replaceAll('"', '\\"') + '"';
+}
+
+// ui_share
+
+function viewShare(id, name) {
+  clearShareUsers("Loading...");
+  document.getElementById("share_sheet_id").value = id;
+  document.getElementById("share_sheet_name").innerHTML = name;
+  api.listUsers(id, updateShareUsers);
+  setView("ui_share");
+}
+
+function clearShareUsers(placeholder) {
+  document.getElementById("share_users").innerHTML = "&nbsp;&nbsp;" + placeholder;
+}
+
+function updateShareUsers(users) {
+  let new_list = "";
+  for (const email of sortedKeysByKey(users)) {
+    const q_email = quote(email);
+    const alias = users[email];
+    const q_alias = quote(alias);
+    new_list += "<tr><td>&nbsp;&nbsp;" + alias + "</td><td width=90px><button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteUser(" + q_email + "," + q_alias + ")'>🗑</button></td></tr>";
+  }
+  document.getElementById("share_users").innerHTML = new_list;
+}
+
+function deleteUser(email, alias) {
+  const sheet_id = document.getElementById("share_sheet_id").value;
+  const sheet_name = document.getElementById("share_sheet_name").innerHTML;
+  const msg = "Are you sure you want to remove '" + alias + "' from the '" + sheet_name + "' SplitSheet?";
+  if (confirm(msg)) {
+    clearShareUsers("Deleting...");
+    api.removeUser(sheet_id, email, updateShareUsers);
+  }
+}
+
+function addUser() {
+  const sheet_id = document.getElementById("share_sheet_id").value;
+  const sheet_name = document.getElementById("share_sheet_name").innerHTML;
+  let msg = "Enter the email address to add to '" + sheet_name + "'";
+  let email = prompt(msg);
+  if (email && email.length) {
+    clearShareUsers("Adding...");
+    api.addUser(sheet_id, email, updateShareUsers);
+  }
 }
 
 // ui_balance
@@ -472,7 +529,7 @@ function updateManageSheets(sheets) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
-    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=90px><button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=90px><button class='btn btn-info btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
   updateSheetList(sheets); // so the menu gets the updates too
