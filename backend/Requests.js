@@ -119,7 +119,7 @@ function addUser(sheet_id, email) {
     throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
   }
   file.addEditor(email);
-  //TODO send new user an email with link to add sheet
+  sendUserAccessEmail(owner, 'add', email, sheet_id, file.getName());
   return listUsers(sheet_id, file);
 }
 
@@ -148,6 +148,6 @@ function removeUser(sheet_id, email) {
   } else {
     file.removeViewer(email);
   }
-  //TODO send an email saying youve been removed with link to remove the sheet from your list
+  sendUserAccessEmail(owner, 'remove', email, sheet_id, file.getName());
   return listUsers(sheet_id, file);
 }
