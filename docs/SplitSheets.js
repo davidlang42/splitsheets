@@ -21,16 +21,21 @@ function onLoad() {
           }
         });
       } else if (share) {
+        let found_name = false;
         api.listSheets((sheets) => {
+          if (found_name) {
+            return; // avoid triggering addUser/removeUser more than once
+          }
           const name = sheets[share];
           if (name) {
+            found_name = true;
             if (add) {
               clearShareUsers("Adding user...");
-              api.addUser(share, add, updateShareUsers);//TODO this is getting double called
+              api.addUser(share, add, updateShareUsers);
               viewShareWithoutUpdatingUsers(share, name);
             } else if (remove) {
               clearShareUsers("Deleting user...");
-              api.removeUser(share, remove, updateShareUsers);//TODO this is getting double called
+              api.removeUser(share, remove, updateShareUsers);
               viewShareWithoutUpdatingUsers(share, name);
             } else {
               viewShare(share, name);
