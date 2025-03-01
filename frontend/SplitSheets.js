@@ -322,8 +322,8 @@ function updateAddCostUsersTableOnly(users) {
     new_html += "</div>";
     new_html += "</td>";
     new_html += "<td width='105px'>";
-    new_html += "<div style='display: inline-block'>";
-    new_html += "<input style='width: 80px' type='number' id='add_cost_share_" + email + "' class='add_cost_share' min='0'";
+    new_html += "<div class='form-group' style='display: inline-block; margin-bottom: 0px;'>";
+    new_html += "<input style='width: 80px' type='number' id='add_cost_share_" + email + "' class='form-control form-control-inline add_cost_share' min='0'";
     if (!checked) new_html += " disabled";
     new_html += ">";
     new_html += "<span class='add_cost_percent_sign'>%</span>";
