@@ -86,7 +86,9 @@
         </table>
         <table id="add_cost_table" width="100%"></table>
       </div>
-      <button class="btn" onClick="addCost()" id="add_cost_button"></button>
+      <div class="form-group">
+        <button class="btn" onClick="addCost()" id="add_cost_button"></button>
+      </div>
     </div>
     <div id="ui_manage" class="container-fluid ui-view" style="display: none;">
       <div style="display: inline-block; width: 100%">
@@ -118,7 +120,12 @@
       </p>
     </div>
     <div id="ui_new" class="container-fluid ui-view" style="display: none;">
-      <p>&nbsp;Name: <input type="text" id="new_sheet_name"></p>
+      <div class="form-group row">
+        <label for="new_sheet_name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+          <input class="form-control" type="text" id="new_sheet_name">
+        </div>
+      </div>
       <p>&nbsp;
         <input type="radio" name="new_sheet_type" id="new_sheet_create" onclick="document.getElementById('new_sheet_link').disabled = true;">
         <label for="new_sheet_create"> Create new Google Sheet</label>
@@ -128,7 +135,9 @@
         <label for="new_sheet_existing"> Join existing Google Sheet:</label><br>
         <input style="width: 100%" type="text" id="new_sheet_link" placeholder="https://docs.google.com/spreadsheets/d/...">
       </p>
-      <p><button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="addNewSheet()">Add Sheet</button></p>
+      <div class="form-group">
+        <button class="btn btn-primary my-2 my-sm-0" onClick="addNewSheet()">Add Sheet</button>
+      </div>
     </div>
   </body>
 </html>
