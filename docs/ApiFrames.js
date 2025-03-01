@@ -18,7 +18,7 @@ let api = {
 
 const requestCallbacks = {}; // {id: callback}
 
-function sendRequest(request, parameters, callback, cache_id, override_timeout) {
+function sendRequest(request, parameters, callback, cache_id, auto_redirect_timeout) {
   if (cache_id && callback) {
     const cached_response = window.localStorage.getItem(cache_id);
     if (cached_response) {
@@ -56,14 +56,19 @@ function sendRequest(request, parameters, callback, cache_id, override_timeout) 
     apiframe.onload = function() {
       window.setTimeout(function() {
         if (consumeCallback(id)) {
-          // No message was received, redirect to login
-          let login_url = BACKEND_URL;
-          if (auth_count > 0) {
-            login_url += "?a=" + auth_count;
+          // No message was received
+          if (auto_redirect_timeout) {
+            // Redirect to login
+            window.top.location.href = BACKEND_URL + "?a=" + auth_count;
+          } else if (confirm(`The server has not responded to the '${request}' request for 10s, would you like to reload the page?`)) {
+            // Reload the client
+            window.top.location.href = window.top.location.href.split('#')[0].split('?')[0];
+          } else {
+            // Console error
+            console.error(`No message received from ${id}, and user declined refresh`);
           }
-          window.top.location.href = login_url;
         }
-      }, override_timeout ?? 10000); // allow 10s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
+      }, auto_redirect_timeout ?? 10000); // allow 10s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
     };
     apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
     console.log(`Request ${id}: ${query}`);
