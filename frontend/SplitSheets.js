@@ -210,7 +210,6 @@ function viewAdd(id, name) {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
     document.getElementById("add_cost_description").value = "";
-    document.getElementById("add_cost_expense").checked = true;
     setCostType(true);
     document.getElementById("add_cost_amount").value = "";
     document.getElementById("add_cost_check_all").checked = true;
@@ -340,9 +339,13 @@ function updateAddCostUsersTableOnly(users) {
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
 
 function setCostType(is_expense) {
+  const add_cost_expense = document.getElementById("add_cost_expense");
+  const add_cost_transfer = document.getElementById("add_cost_transfer");
   const add_cost_button = document.getElementById("add_cost_button");
   const add_cost_description = document.getElementById("add_cost_description");
   if (is_expense) {
+    add_cost_expense.classList.replace("btn-secondary", "btn-primary");
+    add_cost_transfer.classList.replace("btn-success", "btn-secondary");
     if (add_cost_description.value == DEFAULT_TRANSFER_DESCRIPTION) add_cost_description.value = "";
     document.getElementById("add_cost_paid_by_label").innerHTML = "Paid By";
     document.getElementById("add_cost_is_transfer").style.display = "none";
@@ -351,6 +354,8 @@ function setCostType(is_expense) {
     add_cost_button.classList.add("btn-primary");
     add_cost_button.innerHTML = "Add Expense";
   } else {
+    add_cost_expense.classList.replace("btn-primary", "btn-secondary");
+    add_cost_transfer.classList.replace("btn-secondary", "btn-success");
     if (add_cost_description.value == "") add_cost_description.value = DEFAULT_TRANSFER_DESCRIPTION;
     document.getElementById("add_cost_paid_by_label").innerHTML = "From";
     document.getElementById("add_cost_is_transfer").style.display = "inherit";
@@ -448,7 +453,7 @@ function getEmailFromForCheckboxId(e_cost_for_id) {
 }
 
 function addCost() {
-  const is_expense = document.getElementById("add_cost_expense").checked;
+  const is_expense = document.getElementById("add_cost_expense").classList.contains("btn-primary");
   const transaction = is_expense ? "expense" : "transfer";
   const sheet_select = document.getElementById("add_cost_sheet");
   const sheet_id = sheet_select.value;
