@@ -114,7 +114,6 @@ function addUser(sheet_id, email) {
     sendUserRequestEmail(this_user, 'add', email, sheet_id, file.getName(), owner);
     throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
   }
-  throw new Error("Email is: " + email);
   file.addEditor(email);
   //TODO send email with link to add sheet
   return listUsers(sheet_id, file);
