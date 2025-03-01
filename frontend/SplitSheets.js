@@ -602,11 +602,22 @@ function deleteSheet(id, name) {
 
 function viewNew() {
   document.getElementById("new_sheet_create").checked = true;
+  setNewSheetType(true);
   document.getElementById("new_sheet_name").value = "";
-  const new_sheet_link = document.getElementById("new_sheet_link");
-  new_sheet_link.disabled = true;
-  new_sheet_link.value = "";
+  document.getElementById("new_sheet_link").value = "";
   setView("ui_new");
+}
+
+function setNewSheetType(is_create) {
+  const new_sheet_link = document.getElementById("new_sheet_link");
+  const new_sheet_name = document.getElementById("new_sheet_name");
+  if (is_create) {
+    new_sheet_link.disabled = true;
+    new_sheet_name.placeholder = '';
+  } else {
+    new_sheet_link.disabled = false;
+    new_sheet_name.placeholder = "(Use existing sheet name)";
+  }
 }
 
 const SPREADSHEET_LINK_PREFIX = "https://docs.google.com/spreadsheets/d/";
