@@ -349,7 +349,7 @@ function setCostType(is_expense) {
     if (add_cost_description.value == DEFAULT_TRANSFER_DESCRIPTION) add_cost_description.value = "";
     document.getElementById("add_cost_paid_by_label").innerHTML = "Paid By";
     document.getElementById("add_cost_is_transfer").style.display = "none";
-    document.getElementById("add_cost_is_expense").style.display = "inherit";
+    document.getElementById("add_cost_is_expense").style.display = null;
     add_cost_button.classList.remove("btn-success");
     add_cost_button.classList.add("btn-primary");
     add_cost_button.innerHTML = "Add Expense";
@@ -358,7 +358,7 @@ function setCostType(is_expense) {
     add_cost_transfer.classList.replace("btn-secondary", "btn-success");
     if (add_cost_description.value == "") add_cost_description.value = DEFAULT_TRANSFER_DESCRIPTION;
     document.getElementById("add_cost_paid_by_label").innerHTML = "From";
-    document.getElementById("add_cost_is_transfer").style.display = "inherit";
+    document.getElementById("add_cost_is_transfer").style.display = null;
     document.getElementById("add_cost_is_expense").style.display = "none";
     add_cost_button.classList.remove("btn-primary");
     add_cost_button.classList.add("btn-success");
