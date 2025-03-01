@@ -27,8 +27,11 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
     }
     const original_callback = callback;
     callback = function(r) {
-      original_callback(r);
-      window.localStorage.setItem(cache_id, JSON.stringify(r));
+      const new_response = JSON.stringify(r);
+      if (cached_response != new_response) {
+        original_callback(r);
+        window.localStorage.setItem(cache_id, new_response);
+      }
     }
   }
   let query = new URLSearchParams();
