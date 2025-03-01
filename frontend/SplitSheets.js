@@ -8,6 +8,8 @@ function onLoad() {
       const query = new URLSearchParams(window.location.search);
       const id = query.get('id');
       const share = query.get('share');
+      const add = query.get('add');
+      const remove = query.get('remove');
       if (id) {
         api.listSheets((sheets) => {
           const name = sheets[id];
@@ -21,12 +23,16 @@ function onLoad() {
         api.listSheets((sheets) => {
           const name = sheets[share];
           if (name) {
-            //TODO handle add=, remove=
+            //TODO handle add=, remove= to add or remove users, ends up on ui_share
             viewShare(share, name);
           } else {
             viewManage();
           }
         });
+      } else if (add) {
+        //TODO handle add= for adding sheets, ends up on ui_manage
+      } else if (remove) {
+        //TODO handle remove= for removing sheets, ends up on ui_manage
       } else {
         viewAdd();
       }

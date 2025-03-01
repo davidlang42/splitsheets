@@ -8,6 +8,17 @@ function sendUserRequestEmail(requestor, action, email, sheet_id, sheet_name, ow
   GmailApp.sendEmail(owner, access_removal + " request for " + sheet_name, null, { htmlBody: body, name: "SplitSheets" });
 }
 
+function sendUserAccessEmail(owner, action, email, sheet_id, sheet_name) {
+  const sheet_url = SPREADSHEET_LINK_PREFIX + sheet_id;
+  const action_url = EXTERNAL_URL + "?" + action + "=" + sheet_id;
+  const to_from = action == 'add' ? 'to' : 'from';
+  const granted_removed = action == 'add' ? 'granted' : 'removed';
+  const added_removed = action == 'add' ? "added" : "removed";
+  let body = "<p>" + owner + " has " + added_removed + " you " + to_from + " the <a href='" + sheet_url + "'>" + sheet_name + "</a> sheet.</p>";
+  body += "<p><a href='" + action_url + "'>Click here</a> to " + action + " this sheet " + to_from + " the SplitSheets app.</p>";
+  GmailApp.sendEmail(email, "Access " + granted_removed + " " + to_from + " " + sheet_name, null, { htmlBody: body, name: "SplitSheets" });
+}
+
 function sendAddCostEmails(sheet_id, sheet_name, description, amount, paid_by, paid_for, split, users) {
   const notify_emails = [];
   const my_email = Session.getActiveUser().getEmail();
