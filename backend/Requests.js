@@ -109,11 +109,13 @@ function addUser(sheet_id, email) {
   var file = openFile(sheet_id);
   //TODO need to confirm if user is already an editor of this sheet
   const this_user = Session.getActiveUser().getEmail();
-  const owner = file.getOwner().getEmail();
+  const owner = file.getOwner();
+  throw new Error("Owner is: " + owner);
   if (owner != this_user) {
     sendUserRequestEmail(this_user, 'add', email, sheet_id, file.getName(), owner);
     throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
   }
+  throw new Error("Email is: " + email);
   file.addEditor(email);
   //TODO send email with link to add sheet
   return listUsers(sheet_id, file);
@@ -125,7 +127,7 @@ function removeUser(sheet_id, email) {
   var file = openFile(sheet_id);
   //TODO need to check if this user is an existing editor/viewer of this sheet (also block if owner)
   const this_user = Session.getActiveUser().getEmail();
-  const owner = file.getOwner().getEmail();
+  const owner = file.getOwner();
   if (owner != this_user) {
     sendUserRequestEmail(this_user, 'remove', email, sheet_id, file.getName(), owner);
     throw new Error("You must be the owner to remove a user from this sheet. An email has been sent to " + owner + " requesting them to remove this user.");
