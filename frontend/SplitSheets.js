@@ -210,7 +210,6 @@ function viewAdd(id, name) {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
     document.getElementById("add_cost_description").value = "";
-    document.getElementById("add_cost_expense").checked = true;
     setCostType(true);
     document.getElementById("add_cost_amount").value = "";
     document.getElementById("add_cost_check_all").checked = true;
@@ -340,20 +339,26 @@ function updateAddCostUsersTableOnly(users) {
 const DEFAULT_TRANSFER_DESCRIPTION = "Transfer";
 
 function setCostType(is_expense) {
+  const add_cost_expense = document.getElementById("add_cost_expense");
+  const add_cost_transfer = document.getElementById("add_cost_transfer");
   const add_cost_button = document.getElementById("add_cost_button");
   const add_cost_description = document.getElementById("add_cost_description");
   if (is_expense) {
+    add_cost_expense.classList.replace("btn-secondary", "btn-primary");
+    add_cost_transfer.classList.replace("btn-success", "btn-secondary");
     if (add_cost_description.value == DEFAULT_TRANSFER_DESCRIPTION) add_cost_description.value = "";
     document.getElementById("add_cost_paid_by_label").innerHTML = "Paid By";
     document.getElementById("add_cost_is_transfer").style.display = "none";
-    document.getElementById("add_cost_is_expense").style.display = "inherit";
+    document.getElementById("add_cost_is_expense").style.display = null;
     add_cost_button.classList.remove("btn-success");
     add_cost_button.classList.add("btn-primary");
     add_cost_button.innerHTML = "Add Expense";
   } else {
+    add_cost_expense.classList.replace("btn-primary", "btn-secondary");
+    add_cost_transfer.classList.replace("btn-secondary", "btn-success");
     if (add_cost_description.value == "") add_cost_description.value = DEFAULT_TRANSFER_DESCRIPTION;
     document.getElementById("add_cost_paid_by_label").innerHTML = "From";
-    document.getElementById("add_cost_is_transfer").style.display = "inherit";
+    document.getElementById("add_cost_is_transfer").style.display = null;
     document.getElementById("add_cost_is_expense").style.display = "none";
     add_cost_button.classList.remove("btn-primary");
     add_cost_button.classList.add("btn-success");
@@ -448,7 +453,7 @@ function getEmailFromForCheckboxId(e_cost_for_id) {
 }
 
 function addCost() {
-  const is_expense = document.getElementById("add_cost_expense").checked;
+  const is_expense = document.getElementById("add_cost_expense").classList.contains("btn-primary");
   const transaction = is_expense ? "expense" : "transfer";
   const sheet_select = document.getElementById("add_cost_sheet");
   const sheet_id = sheet_select.value;
@@ -568,7 +573,7 @@ function updateManageSheets(sheets) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
-    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=110px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=115px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
   updateSheetList(sheets); // so the menu gets the updates too
@@ -597,11 +602,22 @@ function deleteSheet(id, name) {
 
 function viewNew() {
   document.getElementById("new_sheet_create").checked = true;
+  setNewSheetType(true);
   document.getElementById("new_sheet_name").value = "";
-  const new_sheet_link = document.getElementById("new_sheet_link");
-  new_sheet_link.disabled = true;
-  new_sheet_link.value = "";
+  document.getElementById("new_sheet_link").value = "";
   setView("ui_new");
+}
+
+function setNewSheetType(is_create) {
+  const new_sheet_link = document.getElementById("new_sheet_link");
+  const new_sheet_name = document.getElementById("new_sheet_name");
+  if (is_create) {
+    new_sheet_link.disabled = true;
+    new_sheet_name.placeholder = '';
+  } else {
+    new_sheet_link.disabled = false;
+    new_sheet_name.placeholder = "(Use existing sheet name)";
+  }
 }
 
 const SPREADSHEET_LINK_PREFIX = "https://docs.google.com/spreadsheets/d/";

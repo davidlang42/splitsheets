@@ -3,7 +3,7 @@
   <head>
     <title>SplitSheets</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=200, initial-scale=1.15">
+    <meta name="viewport" content="width=200, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="SplitSheets.css">
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -12,7 +12,7 @@
     <script src="SplitSheets.js"></script>
   </head>
   <body onload="onLoad()">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light container-fluid sticky-top position-fixed">
+    <nav class="navbar navbar-expand-lg navbar-light container-fluid sticky-top position-fixed" style="background-color: #e9ecef;">
       <h3 class="font-weight-light text-black" style="display: inline-block;">SplitSheets</h3>&nbsp;&nbsp;&nbsp;
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -27,16 +27,52 @@
       Loading...
     </div>
     <div id="ui_add" class="container-fluid ui-view">
-      <p>Sheet: <select id="add_cost_sheet" onchange="changeCostSheet()">Loading...</select></p>
-      <p>Date: <input id="add_cost_date" type="datetime-local"></p>
-      <p>
-        <input type="radio" name="add_cost_type" id="add_cost_expense" onclick="setCostType(true)"><label for="add_cost_expense">&nbsp;Expense</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" name="add_cost_type" id="add_cost_transfer" onclick="setCostType(false)"><label for="add_cost_transfer">&nbsp;Transfer</label>
-      </p>
-      <p>Description: <input type="text" id="add_cost_description"></p>
-      <p><span id="add_cost_paid_by_label"></span>: <select id="add_cost_paid_by"></select></p>
-      <p>Amount $: <input type="number" min=0 step=10 placeholder="100.00" id="add_cost_amount"></p>
-      <p id="add_cost_is_transfer">To: <select id="add_cost_transfer_to"></select></p>
+      <div class="form-group row">
+        <label for="add_cost_sheet" class="col-sm-2 col-form-label">Sheet</label>
+        <div class="col-sm-10">
+          <select class="form-control" id="add_cost_sheet" onchange="changeCostSheet()">Loading...</select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="add_cost_date" class="col-sm-2 col-form-label">Date</label>
+        <div class="col-sm-10">
+          <input class="form-control" id="add_cost_date" type="datetime-local">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="add_cost_type" class="col-sm-2 col-form-label">Transaction</label>
+        <div class="col-sm-2 btn-group" role="group" id="add_cost_type">
+          <button type="button" class="btn btn-secondary" id="add_cost_expense" onclick="setCostType(true)">Expense</button>
+          <button type="button" class="btn btn-secondary" id="add_cost_transfer" onclick="setCostType(false)">Transfer</button>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="add_cost_description" class="col-sm-2 col-form-label">Description</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="add_cost_description">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="add_cost_paid_by" class="col-sm-2 col-form-label" id="add_cost_paid_by_label"></label>
+        <div class="col-sm-10">
+          <select class="form-control" id="add_cost_paid_by"></select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="add_cost_amount" class="col-sm-2 col-form-label">Amount</label>
+        <div class="input-group col-sm-10">
+          <div class="input-group-prepend">
+            <div class="input-group-text">$</div>
+          </div>
+          <input class="form-control" type="number" min=0 step=10 placeholder="100.00" id="add_cost_amount">
+        </div>
+      </div>
+      <div id="add_cost_is_transfer" class="form-group row">
+        <label for="add_cost_transfer_to" class="col-sm-2 col-form-label">To</label>
+        <div class="col-sm-10">
+          <select class="form-control" id="add_cost_transfer_to"></select>
+        </div>
+      </div>
       <div id="add_cost_is_expense" class="pb-3">
         <table width="100%">
           <tr>
@@ -53,7 +89,9 @@
         </table>
         <table id="add_cost_table" width="100%"></table>
       </div>
-      <p><button class="btn btn-sm my-2 my-sm-0" onClick="addCost()" id="add_cost_button"></button></p>
+      <div class="form-group">
+        <button class="btn" onClick="addCost()" id="add_cost_button"></button>
+      </div>
     </div>
     <div id="ui_manage" class="container-fluid ui-view" style="display: none;">
       <div style="display: inline-block; width: 100%">
@@ -85,17 +123,26 @@
       </p>
     </div>
     <div id="ui_new" class="container-fluid ui-view" style="display: none;">
-      <p>&nbsp;Name: <input type="text" id="new_sheet_name"></p>
-      <p>&nbsp;
-        <input type="radio" name="new_sheet_type" id="new_sheet_create" onclick="document.getElementById('new_sheet_link').disabled = true;">
-        <label for="new_sheet_create"> Create new Google Sheet</label>
-      </p>
-      <p>&nbsp;
-        <input type="radio" name="new_sheet_type" id="new_sheet_existing" onclick="document.getElementById('new_sheet_link').disabled = false;">
-        <label for="new_sheet_existing"> Join existing Google Sheet:</label><br>
-        <input style="width: 100%" type="text" id="new_sheet_link" placeholder="https://docs.google.com/spreadsheets/d/...">
-      </p>
-      <p><button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="addNewSheet()">Add Sheet</button></p>
+      <div class="form-group row">
+        <label for="new_sheet_name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+          <input class="form-control" type="text" id="new_sheet_name">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="new_sheet_type" id="new_sheet_create" onclick="setNewSheetType(true);">
+          <label class="form-check-label" for="new_sheet_create">Create new Google Sheet</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="new_sheet_type" id="new_sheet_existing" onclick="setNewSheetType(false);">
+          <label class="form-check-label" for="new_sheet_existing">Join existing Google Sheet:</label>
+          <input class="form-control" type="text" id="new_sheet_link" placeholder="https://docs.google.com/spreadsheets/d/...">
+        </div>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary my-2 my-sm-0" onClick="addNewSheet()">Add Sheet</button>
+      </div>
     </div>
   </body>
 </html>
