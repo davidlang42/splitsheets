@@ -110,6 +110,7 @@ function addUser(sheet_id, email) {
   //TODO need to confirm if user is already an editor of this sheet
   const this_user = Session.getActiveUser().getEmail();
   const owner = file.getOwner();
+  throw new Error("Owner is: " + owner);
   if (owner != this_user) {
     sendUserRequestEmail(this_user, 'add', email, sheet_id, file.getName(), owner);
     throw new Error("You must be the owner to add a user to this sheet. An email has been sent to " + owner + " requesting them to add this user.");
