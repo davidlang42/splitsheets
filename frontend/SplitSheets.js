@@ -10,6 +10,7 @@ function onLoad() {
       const share = query.get('share');
       const add = query.get('add');
       const remove = query.get('remove');
+      //TODO should probably clear query after doing the action in case the user clicks refresh
       if (id) {
         api.listSheets((sheets) => {
           const name = sheets[id];
@@ -30,9 +31,13 @@ function onLoad() {
           }
         });
       } else if (add) {
-        //TODO handle add= for adding sheets, ends up on ui_manage
+        clearManageSheets("Adding...");
+        api.addSheet(add, "", updateManageSheets);
+        setView("ui_manage");
       } else if (remove) {
-        //TODO handle remove= for removing sheets, ends up on ui_manage
+        clearManageSheets("Deleting...");
+        api.removeSheet(remove, updateManageSheets);
+        setView("ui_manage");
       } else {
         viewAdd();
       }
