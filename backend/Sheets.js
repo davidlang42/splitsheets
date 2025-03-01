@@ -38,12 +38,3 @@ function openFile(id) {
   if (!file) throw new Error("Could not access Spreadsheet with ID: " + id);
   return file;
 }
-
-function userListContains(list, email) {
-  for (const user of list) {
-    if (user.getEmail() == email) {
-      return true;
-    }
-  }
-  return false;
-}
