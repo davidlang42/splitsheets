@@ -1,63 +1,72 @@
-let currentUser;
+let currentUser = null;
 
 function onLoad() {
   setView("ui_loading");
   api.login((email) => {
-    if (currentUser != email) {
+    if (!currentUser) {
       currentUser = email;
-      const query = new URLSearchParams(window.location.search);
-      const id = query.get('id');
-      const share = query.get('share');
-      const add = query.get('add');
-      const remove = query.get('remove');
-      //TODO should probably clear query after doing the action in case the user clicks refresh
-      if (id) {
-        api.listSheets((sheets) => {
-          const name = sheets[id];
-          if (name) {
-            viewBalances(id, name);
-          } else {
-            viewManage();
-          }
-        });
-      } else if (share) {
-        let found_name = false;
-        api.listSheets((sheets) => {
-          if (found_name) {
-            return; // avoid triggering addUser/removeUser more than once
-          }
-          const name = sheets[share];
-          if (name) {
-            found_name = true;
-            if (add) {
-              clearShareUsers("Adding user...");
-              api.addUser(share, add, updateShareUsers);
-              viewShareWithoutUpdatingUsers(share, name);
-            } else if (remove) {
-              clearShareUsers("Deleting user...");
-              api.removeUser(share, remove, updateShareUsers);
-              viewShareWithoutUpdatingUsers(share, name);
-            } else {
-              viewShare(share, name);
-            }
-          } else {
-            viewManage();
-          }
-        });
-      } else if (add) {
-        clearManageSheets("Adding sheet...");
-        api.addSheet(add, "", updateManageSheets);
-        setView("ui_manage");
-      } else if (remove) {
-        clearManageSheets("Deleting sheet...");
-        api.removeSheet(remove, updateManageSheets);
-        setView("ui_manage");
-      } else {
-        viewAdd();
-      }
+      api.listSheets(updateSheetList);
+      loadInitialViewFromQueryString();
+    } else if (currentUser != email) {
+      window.localStorage.clear(); // clear cache of previously logged in user's data
+      currentUser = email;
       api.listSheets(updateSheetList);
     }
   });
+}
+
+function loadInitialViewFromQueryString() {
+  // this must only be called once
+  const query = new URLSearchParams(window.location.search);
+  const id = query.get('id');
+  const share = query.get('share');
+  const add = query.get('add');
+  const remove = query.get('remove');
+  window.history.replaceState({}, "", "/");
+  if (id) {
+    api.listSheets((sheets) => {
+      const name = sheets[id];
+      if (name) {
+        viewBalances(id, name);
+      } else {
+        viewManage();
+      }
+    });
+  } else if (share) {
+    let found_name = false;
+    api.listSheets((sheets) => {
+      if (found_name) {
+        return; // avoid triggering addUser/removeUser more than once
+      }
+      const name = sheets[share];
+      if (name) {
+        found_name = true;
+        if (add) {
+          clearShareUsers("Adding user...");
+          api.addUser(share, add, updateShareUsers);
+          viewShareWithoutUpdatingUsers(share, name);
+        } else if (remove) {
+          clearShareUsers("Deleting user...");
+          api.removeUser(share, remove, updateShareUsers);
+          viewShareWithoutUpdatingUsers(share, name);
+        } else {
+          viewShare(share, name);
+        }
+      } else {
+        viewManage();
+      }
+    });
+  } else if (add) {
+    clearManageSheets("Adding sheet...");
+    api.addSheet(add, "", updateManageSheets);
+    setView("ui_manage");
+  } else if (remove) {
+    clearManageSheets("Deleting sheet...");
+    api.removeSheet(remove, updateManageSheets);
+    setView("ui_manage");
+  } else {
+    viewAdd();
+  }
 }
 
 function sortedKeysByValue(obj) {

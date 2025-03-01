@@ -1,8 +1,7 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyVEMBqoApPG_0rD9cp5nL9DhJaNiKgviIn4kA3jZI6yztz6mRWBGHFIPOxlu3xMsaK/exec";
 const IFRAME_PREFIX = "apiFrame_";
 
-const params = new URLSearchParams(window.location.search);
-const auth_count = params.get('a') ?? 0;
+let auth_count = new URLSearchParams(window.location.search).get('a') ?? 0;
 
 let api = {
   login: (callback) => sendRequest('login', [], callback, 'login', 1000), // returns the email of the current user
@@ -58,9 +57,13 @@ function sendRequest(request, parameters, callback, cache_id, override_timeout) 
       window.setTimeout(function() {
         if (consumeCallback(id)) {
           // No message was received, redirect to login
-          window.top.location.href = BACKEND_URL + "?a=" + auth_count;
+          let login_url = BACKEND_URL;
+          if (auth_count > 0) {
+            login_url += "?a=" + auth_count;
+          }
+          window.top.location.href = login_url;
         }
-      }, override_timeout ?? 5000); // allow 5s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
+      }, override_timeout ?? 10000); // allow 10s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
     };
     apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
     console.log(`Request ${id}: ${query}`);
@@ -70,6 +73,7 @@ function sendRequest(request, parameters, callback, cache_id, override_timeout) 
 window.addEventListener('message', onMessage);
 
 function onMessage(e) {
+  auth_count = 0; // its not a redirect loop if any request succeeds
   if (e.data.response) {
     console.log(`Response ${e.data.id}: ${JSON.stringify(e.data.response)}`);
     consumeCallback(e.data.id)(e.data.response);
