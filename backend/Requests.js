@@ -40,6 +40,11 @@ function createSheet(name) {
 // append a new cost row to the given sheet, then return the balances as {alias: owed}
 function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
   var sheet = openSheet(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = sheet.getOwner().getEmail();
+  if (owner != this_user && !userListContains(sheet.getEditors(), this_user)) {
+    throw new Error("You don't have access to edit this sheet. Please contact " + owner + " for access.");
+  }
   var costs = sheet.getSheetByName(COSTS_SHEET);
   if (!costs) throw new Error("Spreadsheet does not contain a sheet called '" + COSTS_SHEET + "'");
   var headers = costs.getSheetValues(1,1,1,-1)[0];
@@ -131,7 +136,7 @@ function removeUser(sheet_id, email) {
     throw new Error("You cannot remove the owner from their own sheet");
   }
   let is_editor;
-  if (userListContains(file.getEditors(), email)) { //TODO reuse in add cost
+  if (userListContains(file.getEditors(), email)) {
     is_editor = true;
   } else if (userListContains(file.getViewers(), email)) {
     is_editor = false;
