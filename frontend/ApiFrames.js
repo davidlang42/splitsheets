@@ -78,7 +78,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
 window.addEventListener('message', onMessage);
 
 function onMessage(e) {
-  auth_count = 0; // its not a redirect loop if any request succeeds
+  auth_count = 0; // reset count if any request succeeds
   if (e.data.response) {
     console.log(`Response ${e.data.id}: ${JSON.stringify(e.data.response)}`);
     consumeCallback(e.data.id)(e.data.response);
