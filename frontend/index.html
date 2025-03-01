@@ -73,21 +73,35 @@
           <select class="form-control" id="add_cost_transfer_to"></select>
         </div>
       </div>
-      <div id="add_cost_is_expense" class="pb-3">
-        <table width="100%">
-          <tr>
-            <td>
-              <input type="checkbox" onclick="changeCostForAll()" id="add_cost_check_all">
-              For:
-            </td>
-            <td width="200px">
-              <input type="radio" name="add_cost_by_type" id="add_cost_even" onclick="setCostShares(true, false)"><label for="add_cost_even">&nbsp;Even</label>&nbsp;&nbsp;&nbsp;
-              <input type="radio" name="add_cost_by_type" id="add_cost_by_shares" onclick="setCostShares(false, false)"><label for="add_cost_by_shares">&nbsp;Shares</label>&nbsp;&nbsp;&nbsp;
-              <input type="radio" name="add_cost_by_type" id="add_cost_by_percent" onclick="setCostShares(false, true)"><label for="add_cost_by_percent">&nbsp;%</label>
-            </td>
-          </tr>
-        </table>
-        <table id="add_cost_table" width="100%"></table>
+      <div id="add_cost_is_expense" class="form-group row">
+        <label for="add_cost_is_expense_tables" class="col-sm-2 col-form-label">Paying For</label>
+        <div id="add_cost_is_expense_tables" class="col-sm-10 pb-3">
+          <table width="100%">
+            <tr>
+              <td>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="add_cost_check_all" onclick="changeCostForAll()">
+                  <label class="form-check-label" for="add_cost_check_all"><i>(Select All)</i></label>
+                </div>
+              </td>
+              <td width="205px">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="add_cost_by_type" id="add_cost_even" onclick="setCostShares(true, false)">
+                  <label class="form-check-label" for="add_cost_even">Even</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="add_cost_by_type" id="add_cost_by_shares" onclick="setCostShares(false, false)">
+                  <label class="form-check-label" for="add_cost_by_shares">Shares</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="add_cost_by_type" id="add_cost_by_percent" onclick="setCostShares(false, true)">
+                  <label class="form-check-label" for="add_cost_by_percent">%</label>
+                </div>
+              </td>
+            </tr>
+          </table>
+          <table id="add_cost_table" width="100%"></table>
+        </div>
       </div>
       <div class="form-group">
         <button class="btn" onClick="addCost()" id="add_cost_button"></button>
