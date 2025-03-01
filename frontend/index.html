@@ -64,6 +64,16 @@
       </div>
       <table id="manage_sheets" style="width: 100%"></table>
     </div>
+    <div id="ui_share" class="container-fluid ui-view" style="display: none;">
+      <div style="display: inline-block; width: 100%">
+        Share <span id="share_sheet_name"></span>
+        <div class="float-right">
+          <input type="hidden" id="share_sheet_id">
+          <button class="btn btn-primary btn-sm my-2 my-sm-0" onClick="addUser()">Add</button>
+        </div>
+      </div>
+      <table id="share_users" style="width: 100%"></table>
+    </div>
     <div id="ui_balance" class="container-fluid ui-view" style="display: none;">
       <p><span id="balance_sheet_name"></span> Balances</p>
       <p><ul id="balance_list"></ul></p>

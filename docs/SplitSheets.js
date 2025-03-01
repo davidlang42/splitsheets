@@ -1,26 +1,72 @@
-let currentUser;
+let currentUser = null;
 
 function onLoad() {
   setView("ui_loading");
   api.login((email) => {
-    if (currentUser != email) {
+    if (!currentUser) {
       currentUser = email;
-      const id = new URLSearchParams(window.location.search).get('id');
-      if (id) {
-        api.listSheets((sheets) => {
-          const name = sheets[id];
-          if (name) {
-            viewBalances(id, name);
-          } else {
-            viewManage();
-          }
-        });
-      } else {
-        viewAdd();
-      }
+      api.listSheets(updateSheetList);
+      loadInitialViewFromQueryString();
+    } else if (currentUser != email) {
+      window.localStorage.clear(); // clear cache of previously logged in user's data
+      currentUser = email;
       api.listSheets(updateSheetList);
     }
   });
+}
+
+function loadInitialViewFromQueryString() {
+  // this must only be called once
+  const query = new URLSearchParams(window.location.search);
+  const id = query.get('id');
+  const share = query.get('share');
+  const add = query.get('add');
+  const remove = query.get('remove');
+  window.history.replaceState({}, "", "/");
+  if (id) {
+    api.listSheets((sheets) => {
+      const name = sheets[id];
+      if (name) {
+        viewBalances(id, name);
+      } else {
+        viewManage();
+      }
+    });
+  } else if (share) {
+    let found_name = false;
+    api.listSheets((sheets) => {
+      if (found_name) {
+        return; // avoid triggering addUser/removeUser more than once
+      }
+      const name = sheets[share];
+      if (name) {
+        found_name = true;
+        if (add) {
+          clearShareUsers("Adding user...");
+          api.addUser(share, add, updateShareUsers);
+          viewShareWithoutUpdatingUsers(share, name);
+        } else if (remove) {
+          clearShareUsers("Deleting user...");
+          api.removeUser(share, remove, updateShareUsers);
+          viewShareWithoutUpdatingUsers(share, name);
+        } else {
+          viewShare(share, name);
+        }
+      } else {
+        viewManage();
+      }
+    });
+  } else if (add) {
+    clearManageSheets("Adding sheet...");
+    api.addSheet(add, "", updateManageSheets);
+    setView("ui_manage");
+  } else if (remove) {
+    clearManageSheets("Deleting sheet...");
+    api.removeSheet(remove, updateManageSheets);
+    setView("ui_manage");
+  } else {
+    viewAdd();
+  }
 }
 
 function sortedKeysByValue(obj) {
@@ -67,10 +113,60 @@ function quote(s) {
   return '"' + s.replaceAll('"', '\\"') + '"';
 }
 
+// ui_share
+
+function viewShare(id, name) {
+  clearShareUsers("Loading users...");
+  api.listUsers(id, updateShareUsers);
+  viewShareWithoutUpdatingUsers(id, name);
+}
+
+function viewShareWithoutUpdatingUsers(id, name) {
+  document.getElementById("share_sheet_id").value = id;
+  document.getElementById("share_sheet_name").innerHTML = name;
+  setView("ui_share");
+}
+
+function clearShareUsers(placeholder) {
+  document.getElementById("share_users").innerHTML = "&nbsp;&nbsp;" + placeholder;
+}
+
+function updateShareUsers(users) {
+  let new_list = "";
+  for (const email of sortedKeysByKey(users)) {
+    const q_email = quote(email);
+    const alias = users[email];
+    const q_alias = quote(alias);
+    new_list += "<tr><td>&nbsp;&nbsp;" + alias + "</td><td width=40px><button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteUser(" + q_email + "," + q_alias + ")'>🗑</button></td></tr>";
+  }
+  document.getElementById("share_users").innerHTML = new_list;
+}
+
+function deleteUser(email, alias) {
+  const sheet_id = document.getElementById("share_sheet_id").value;
+  const sheet_name = document.getElementById("share_sheet_name").innerHTML;
+  const msg = "Are you sure you want to remove '" + alias + "' from the '" + sheet_name + "' SplitSheet?";
+  if (confirm(msg)) {
+    clearShareUsers("Deleting user...");
+    api.removeUser(sheet_id, email, updateShareUsers);
+  }
+}
+
+function addUser() {
+  const sheet_id = document.getElementById("share_sheet_id").value;
+  const sheet_name = document.getElementById("share_sheet_name").innerHTML;
+  let msg = "Enter the email address to add to '" + sheet_name + "'";
+  let email = prompt(msg);
+  if (email && email.length) {
+    clearShareUsers("Adding user...");
+    api.addUser(sheet_id, email, updateShareUsers);
+  }
+}
+
 // ui_balance
 
 function viewBalances(id, name) {
-  clearBalanceList("Loading...");
+  clearBalanceList("Loading balances...");
   api.listBalances(id, updateBalanceList);
   viewBalancesWithoutUpdatingList(id, name);
 }
@@ -457,7 +553,7 @@ function getOptionText(select_element, option_value) {
 // ui_manage (sheets)
 
 function viewManage() {
-  clearManageSheets("Loading...");
+  clearManageSheets("Loading sheets...");
   api.listSheets(updateManageSheets);
   setView("ui_manage");
 }
@@ -472,7 +568,7 @@ function updateManageSheets(sheets) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
-    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=90px><button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=110px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
   updateSheetList(sheets); // so the menu gets the updates too
@@ -483,7 +579,7 @@ function editSheet(id, name) {
   msg += "\n(This won't rename the underlying Google Sheet, or change its name for other users)";
   let new_name = prompt(msg, name);
   if (new_name || new_name == "") { // empty string means get the name from the actual sheet
-    clearManageSheets("Renaming...");
+    clearManageSheets("Renaming sheet...");
     api.addSheet(id, new_name, updateManageSheets);
   }
 }
@@ -492,7 +588,7 @@ function deleteSheet(id, name) {
   let msg = "Are you sure you want to remove '" + name + "' from SplitSheets?";
   msg += "\n(This won't delete the underlying Google Sheet, or remove it for other users)";
   if (confirm(msg)) {
-    clearManageSheets("Deleting...");
+    clearManageSheets("Deleting sheet...");
     api.removeSheet(id, updateManageSheets);
   }
 }
@@ -518,7 +614,7 @@ function addNewSheet() {
       alert('Please enter a name for the new Google Sheet');
       return;
     }
-    clearManageSheets("Creating...");
+    clearManageSheets("Creating sheet...");
     api.createSheet(new_name, updateManageSheets);
   } else {
     // add existing
@@ -535,7 +631,7 @@ function addNewSheet() {
       alert('Google Sheets links should start with ' + SPREADSHEET_LINK_PREFIX);
       return;
     }
-    clearManageSheets("Adding...");
+    clearManageSheets("Adding sheet...");
     api.addSheet(existing, new_name, updateManageSheets);
   }
   setView("ui_manage");

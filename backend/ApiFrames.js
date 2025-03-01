@@ -32,6 +32,10 @@ function doGet(e) {
         return apiFrame(id, () => listBalances(p[0]));
       case "listUsers":
         return apiFrame(id, () => listUsers(p[0]));
+      case "addUser":
+        return apiFrame(id, () => addUser(p[0], p[1]));
+      case "removeUser":
+        return apiFrame(id, () => removeUser(p[0], p[1]));
       default:
         return apiFrame(id, () => {
           throw new Error("Invalid request: " + e.parameter.r)
