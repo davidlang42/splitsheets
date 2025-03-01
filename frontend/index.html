@@ -39,9 +39,12 @@
           <input class="form-control" id="add_cost_date" type="datetime-local">
         </div>
       </div>
-      <div class="btn-group form-group" role="group">
-        <button type="button" class="btn btn-secondary" id="add_cost_expense" onclick="setCostType(true)">Expense</button>
-        <button type="button" class="btn btn-secondary" id="add_cost_transfer" onclick="setCostType(false)">Transfer</button>
+      <div class="form-group row">
+        <label for="add_cost_type" class="col-sm-2 col-form-label">Transaction</label>
+        <div class="col-sm-2 btn-group" role="group" id="add_cost_type">
+          <button type="button" class="btn btn-secondary" id="add_cost_expense" onclick="setCostType(true)">Expense</button>
+          <button type="button" class="btn btn-secondary" id="add_cost_transfer" onclick="setCostType(false)">Transfer</button>
+        </div>
       </div>
       <div class="form-group row">
         <label for="add_cost_description" class="col-sm-2 col-form-label">Description</label>
