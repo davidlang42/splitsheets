@@ -573,7 +573,7 @@ function updateManageSheets(sheets) {
     const q_id = quote(id);
     const name = sheets[id];
     const q_name = quote(name);
-    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=110px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
+    new_list += "<tr><td>&nbsp;&nbsp;" + name + "</td><td width=115px><button class='btn btn-warning btn-sm my-2 my-sm-0' onClick='viewShare(" + q_id + "," + q_name + ")'>👤</button> <button class='btn btn-info btn-sm my-2 my-sm-0' onClick='editSheet(" + q_id + "," + q_name + ")'>✎</button> <button class='btn btn-danger btn-sm my-2 my-sm-0' onClick='deleteSheet(" + q_id + "," + q_name + ")'>🗑</button></td></tr>";
   }
   document.getElementById("manage_sheets").innerHTML = new_list;
   updateSheetList(sheets); // so the menu gets the updates too
