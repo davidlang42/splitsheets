@@ -314,10 +314,12 @@ function updateAddCostUsersTableOnly(users) {
   for (const email of sortedKeysByKey(users)) {
     new_html += "<tr>";
     new_html += "<td>";
-    new_html += "<input type='checkbox' onclick='changeCostForOne(this)' id='add_cost_for_" + email + "' class='add_cost_for'";
+    new_html += "<div class='form-check'>";
+    new_html += "<input type='checkbox' onclick='changeCostForOne(this)' id='add_cost_for_" + email + "' class='form-check-input add_cost_for'";
     if (checked) new_html += " checked";
     new_html += "> ";
-    new_html += users[email];
+    new_html += "<label class='form-check-label' for='add_cost_for_" + email + "'>" + users[email] + "</label>";
+    new_html += "</div>";
     new_html += "</td>";
     new_html += "<td width='105px'>";
     new_html += "<div style='display: inline-block'>";
