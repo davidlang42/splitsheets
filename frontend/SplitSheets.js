@@ -248,7 +248,7 @@ function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
       for (const email in non_even_users) {
         if (email != to_email) {
           quoted_from_emails.push('"' + email + '"');
-          string_amounts.push(`${non_even_users[email]}`);
+          string_amounts.push(`${-non_even_users[email]}`);
         }
       }
       const onclick_without_single_quotes = 'moveAmounts("' + sheet_id + '","' + other_id + '",[' + quoted_from_emails.join(",") + '],"' + to_email + '",[' + string_amounts.join(",") + '])';
@@ -272,7 +272,7 @@ function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts)
     latest_response = balances;
     remaining_responses -= 1;
     if (!remaining_responses) {
-      updateBalanceList(latest_response);
+      updateBalanceList(from_sheet_id, latest_response);
     }
   };
   for (let i = 0; i < amounts.length; i++) {
