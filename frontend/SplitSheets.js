@@ -211,11 +211,11 @@ function updateBalanceList(sheet_id, response) {
 
 function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
   let move_html = "";
-  for (const id of sortedKeysByValueName(sheets_and_users)) {
-    if (id == sheet_id) {
+  for (const other_id of sortedKeysByValueName(sheets_and_users)) {
+    if (other_id == sheet_id) {
       continue; // dont offer to move to current sheet
     }
-    const other_sheet = sheets_and_users[id];
+    const other_sheet = sheets_and_users[other_id];
     const non_even_users = {};
     let sum = 0;
     let all_users_common = true;
@@ -233,20 +233,34 @@ function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
     }
     if (all_users_common && Object.keys(non_even_users).length > 1) {
       // all users of other_sheet are part of this sheet and at least 2 are not even
-      //TODO const combined_names = Object.keys(non_even_users).map((email) => other_sheet.users[email]).join("/");
-      move_html += "<p><button class='btn btn-sm btn-info' onclick=''>Move debts to '" + other_sheet.name + "'</button></p>";
+      
       //TODO handle click
-      // let result_person;
-      // if (sum > 0) {
-      //   // end result will be one person positive, so find the most positive person to leave positive
-      //   result_person = non_even_users.reduce((max, u) => max && non_even_users[max] > non_even_users[u] ? max : u, null);
-      // } else {
-      //   // end result will be one person negative, so find the most negative person to leave negative
-      //   result_person = non_even_users.reduce((min, u) => min && non_even_users[min] < non_even_users[u] ? min : u, null);
-      // }
+      let to_email;
+      if (sum > 0) {
+        // end result will be one person positive, so find the most positive person to leave positive
+        to_email = Object.keys(non_even_users).reduce((max, u) => max && non_even_users[max] > non_even_users[u] ? max : u, null);
+      } else {
+        // end result will be one person negative, so find the most negative person to leave negative
+        to_email = Object.keys(non_even_users).reduce((min, u) => min && non_even_users[min] < non_even_users[u] ? min : u, null);
+      }
+      const quoted_from_emails = [];
+      const string_amounts = [];
+      for (const email in non_even_users) {
+        if (email != to_email) {
+          quoted_from_emails.push('"' + email + '"');
+          string_amounts.push(`${non_even_users[email]}`);
+        }
+      }
+      const onclick_without_single_quotes = 'moveAmounts("' + sheet_id + '","' + other_id + '",[' + quoted_from_emails.join(",") + '],"' + to_email + '",[' + string_amounts.join(",") + '])';
+      move_html += "<p><button class='btn btn-sm btn-info' onclick='" + onclick_without_single_quotes + "'>Move debts to '" + other_sheet.name + "'</button></p>";
     }
   }
   document.getElementById("balance_moves").innerHTML = move_html;
+}
+
+function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts) {
+  clearBalanceList("Moving debts...");
+  api.moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts, updateBalanceList)
 }
 
 // ui_add (cost)
