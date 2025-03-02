@@ -65,7 +65,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
           if (auto_redirect_timeout) {
             // Redirect to login
             window.top.location.href = BACKEND_URL + "?a=" + auth_count;
-          } else if (confirm(`The server has not responded to the '${request}' request for 10s, would you like to reload the page?`)) {
+          } else if (confirm(`The server has not responded to the '${request}' request for 30s, would you like to reload the page?`)) {
             // Reload the client
             window.top.location.href = window.top.location.href.split('#')[0].split('?')[0];
           } else {
@@ -73,7 +73,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
             console.error(`No message received from ${id}, and user declined refresh`);
           }
         }
-      }, auto_redirect_timeout ?? 10000); // allow 10s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
+      }, auto_redirect_timeout ?? 30000); // allow 30s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
     };
     apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
     console.log(`Request ${id}: ${query}`);
