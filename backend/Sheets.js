@@ -52,8 +52,8 @@ function ensureEditAccess(sheet, sheet_name) {
   const this_user = Session.getActiveUser().getEmail();
   const owner = sheet.getOwner().getEmail();
   if (owner != this_user && !userListContains(sheet.getEditors(), this_user)) {
-    sheet_name ??= "this sheet";
-    throw new Error("You don't have access to edit " + sheet_name + ". Please contact " + owner + " for access.");
+    const this_sheet = sheet_name ? "'" + sheet_name + "'" : "this sheet";
+    throw new Error("You don't have access to edit " + this_sheet + ". Please contact " + owner + " for access.");
   }
 }
 
