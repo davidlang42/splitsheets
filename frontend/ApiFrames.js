@@ -14,6 +14,7 @@ let api = {
   listUsers: (sheet_id, callback) => sendRequest('listUsers', [sheet_id], callback, 'listUsers_' + sheet_id), // return users for a given sheet as {email: alias}
   addUser: (sheet_id, email, callback) => sendRequest('addUser', [sheet_id, email], callback), // add a user to the given sheet, then return users as {email: alias}
   removeUser: (sheet_id, email, callback) => sendRequest('removeUser', [sheet_id, email], callback), // remove a user from the given sheet, then return users as {email: alias}
+  listSheetsAndUsers: (callback) => sendRequest('listSheetsAndUsers', [], callback, 'listSheetsAndUsers'), // returns known sheets as {id: {name, users}}
 };
 
 const requestCallbacks = {}; // {id: callback}

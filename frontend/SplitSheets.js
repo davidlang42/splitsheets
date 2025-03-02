@@ -69,6 +69,12 @@ function loadInitialViewFromQueryString() {
   }
 }
 
+function sortedKeysByValueName(obj) {
+  let keys = Object.keys(obj);
+  keys.sort((a, b) => obj[a].name.localeCompare(obj[b].name)); // assumes values are objects with a name string value
+  return keys;
+}
+
 function sortedKeysByValue(obj) {
   let keys = Object.keys(obj);
   keys.sort((a, b) => obj[a].localeCompare(obj[b])); // assumes values are strings
