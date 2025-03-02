@@ -193,20 +193,23 @@ function clearBalanceList(placeholder) {
 function updateBalanceList(sheet_id, response) {
   const balances = response.balances;
   let new_list = "";
-  for (const alias of sortedKeysByKey(balances)) {
-    let balance = balances[alias];
+  for (const email of sortedKeysByKey(balances)) {
+    let balance = balances[email];
     balance = Math.round(balance * 100) / 100;
+    //TODO look up alias with listUsers
     if (balance > 0) {
-      new_list += "<li>" + alias + " is <span class='owed'>owed $" + balance + "</span></li>";
+      new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
-      new_list += "<li>" + alias + " <span class='owes'>owes $" + (-balance) + "</span></li>";
+      new_list += "<li>" + email + " <span class='owes'>owes $" + (-balance) + "</span></li>";
     } else {
-      new_list += "<li>" + alias + " is even</li>";
+      new_list += "<li>" + email + " is even</li>";
     }
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
+  //TODO remove listSheetsAndUsers because its too slow, also reduce 30s back to 10s, instead stockpile results and run once when finished
   api.listSheetsAndUsers((sheets_and_users) => updateBalanceMoves(sheet_id, balances, sheets_and_users));
+  //TODO build_frontend.sh
 }
 
 function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
