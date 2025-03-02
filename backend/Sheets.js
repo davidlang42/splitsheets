@@ -47,23 +47,3 @@ function userListContains(list, email) {
   }
   return false;
 }
-
-function ensureEditAccess(sheet, sheet_name) {
-  const this_user = Session.getActiveUser().getEmail();
-  const owner = sheet.getOwner().getEmail();
-  if (owner != this_user && !userListContains(sheet.getEditors(), this_user)) {
-    const this_sheet = sheet_name ? "'" + sheet_name + "'" : "this sheet";
-    throw new Error("You don't have access to edit " + this_sheet + ". Please contact " + owner + " for access.");
-  }
-}
-
-function createRow(headers, date, description, amount, paid_by, paid_for, split) {
-  const row = [];
-  row[findColumn(headers, DATE_COLUMN)] = date;
-  row[findColumn(headers, DESCRIPTION_COLUMN)] = description;
-  row[findColumn(headers, AMOUNT_COLUMN)] = amount;
-  row[findColumn(headers, PAID_BY_COLUMN)] = paid_by;
-  row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
-  row[findColumn(headers, SPLIT_COLUMN)] = split;
-  return row;
-}

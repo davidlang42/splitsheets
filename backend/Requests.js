@@ -38,60 +38,27 @@ function createSheet(name) {
 }
 
 // append a new cost row to the given sheet, then return the balances as {email: owed}
-function addCost(sheet_id, date, description, amount, paid_by, paid_for, split, _sheet_already_open) {
-  const sheet = _sheet_already_open ?? openSheet(sheet_id);
-  ensureEditAccess(sheet);
-  const costs = sheet.getSheetByName(COSTS_SHEET);
+function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
+  var sheet = openSheet(sheet_id);
+  const this_user = Session.getActiveUser().getEmail();
+  const owner = sheet.getOwner().getEmail();
+  if (owner != this_user && !userListContains(sheet.getEditors(), this_user)) {
+    throw new Error("You don't have access to edit this sheet. Please contact " + owner + " for access.");
+  }
+  var costs = sheet.getSheetByName(COSTS_SHEET);
   if (!costs) throw new Error("Spreadsheet does not contain a sheet called '" + COSTS_SHEET + "'");
-  const headers = costs.getSheetValues(1,1,1,-1)[0];
+  var headers = costs.getSheetValues(1,1,1,-1)[0];
   if (!headers) throw new Error(COSTS_SHEET + " does not contain a header row");
-  costs.appendRow(createRow(headers, date, description, amount, paid_by, paid_for, split));
+  var row = [];
+  row[findColumn(headers, DATE_COLUMN)] = date;
+  row[findColumn(headers, DESCRIPTION_COLUMN)] = description;
+  row[findColumn(headers, AMOUNT_COLUMN)] = amount;
+  row[findColumn(headers, PAID_BY_COLUMN)] = paid_by;
+  row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
+  row[findColumn(headers, SPLIT_COLUMN)] = split;
+  costs.appendRow(row);
   sendAddCostEmails(sheet_id, sheet.getName(), description, amount, paid_by, paid_for, split, listUsers(sheet_id));
   return listBalances(sheet_id, sheet);
-}
-
-// move amounts from one sheet to another, then return the balances of from_sheet_id as {email: owed}
-function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts) {
-  const date = new Date();//TODO
-  /*
-  var now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
-  */
-  // arg check
-  if (!from_emails.length || !amounts.length || from_emails.length != amounts.length) {
-    throw new Error("Expected from_emails and amounts to be arrays of the same length");
-  }
-  // pre-check from sheet
-  const from_sheet = openSheet(from_sheet_id);
-  const from_sheet_name = from_sheet.getName();
-  ensureEditAccess(from_sheet, from_sheet_name);
-  const from_costs = from_sheet.getSheetByName(COSTS_SHEET);
-  if (!from_costs) throw new Error("Spreadsheet '" + from_sheet_name + "' does not contain a sheet called '" + COSTS_SHEET + "'");
-  const from_headers = from_costs.getSheetValues(1,1,1,-1)[0];
-  if (!from_headers) throw new Error(from_sheet_name + "!" + COSTS_SHEET + " does not contain a header row");
-  // pre-check to sheet
-  const to_sheet = openSheet(to_sheet_id);
-  const to_sheet_name = to_sheet.getName();
-  ensureEditAccess(to_sheet, to_sheet_name);
-  const to_costs = to_sheet.getSheetByName(COSTS_SHEET);
-  if (!to_costs) throw new Error("Spreadsheet '" + to_sheet_name + "' does not contain a sheet called '" + COSTS_SHEET + "'");
-  const to_headers = to_costs.getSheetValues(1,1,1,-1)[0];
-  if (!to_headers) throw new Error(to_sheet_name + "!" + COSTS_SHEET + " does not contain a header row");
-  // create rows
-  const from_rows = [];
-  const to_rows = [];
-  for (let i = 0; i < amounts.length; i++) {
-    from_rows.push(createRow(from_headers, date, "Moved to " + to_sheet_name, amounts[i], from_emails[i], to_email, ""));
-    to_rows.push(createRow(to_headers, date, "Moved from " + from_sheet_name, amounts[i], to_email, from_emails[i], ""));
-  }
-  // transact
-  for (let i = 0; i < amounts.length; i++) {
-    from_costs.appendRow(from_rows[i]);
-    to_costs.appendRow(to_rows[i]);
-  }
-  // return balances of from
-  return listBalances(from_sheet_id, from_sheet);
 }
 
 // return balances from a given sheet as {email: owed}
