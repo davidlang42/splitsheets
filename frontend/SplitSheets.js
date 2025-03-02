@@ -173,7 +173,7 @@ function addUser() {
 
 function viewBalances(id, name) {
   clearBalanceList("Loading balances...");
-  api.listBalances(id, updateBalanceList);
+  api.listBalances(id, (b) => updateBalanceList(id, b));
   viewBalancesWithoutUpdatingList(id, name);
 }
 
@@ -190,7 +190,7 @@ function clearBalanceList(placeholder) {
   document.getElementById("balance_moves").innerHTML = "";
 }
 
-function updateBalanceList(response) {
+function updateBalanceList(sheet_id, response) {
   const balances = response.balances;
   let new_list = "";
   for (const alias of sortedKeysByKey(balances)) {
@@ -206,13 +206,15 @@ function updateBalanceList(response) {
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
-  api.listSheetsAndUsers((sheets_and_users) => updateBalanceMoves(balances, sheets_and_users));
+  api.listSheetsAndUsers((sheets_and_users) => updateBalanceMoves(sheet_id, balances, sheets_and_users));
 }
 
-function updateBalanceMoves(balances, sheets_and_users) {
+function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
   let move_html = "";
   for (const id of sortedKeysByValueName(sheets_and_users)) {
-    //TODO skip this sheet
+    if (id == sheet_id) {
+      continue; // dont offer to move to current sheet
+    }
     const other_sheet = sheets_and_users[id];
     const non_even_users = {};
     let sum = 0;
@@ -574,7 +576,7 @@ function addCost() {
     split = split.join(is_percent ? "/" : ":");
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding expense...");
-    api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, updateBalanceList)
+    api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, (b) => updateBalanceList(sheet_id, b))
   } else {
     // transfer
     const transfer_to = document.getElementById("add_cost_transfer_to").value;
@@ -588,7 +590,7 @@ function addCost() {
     }
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding transfer...");
-    api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", updateBalanceList)
+    api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", (b) => updateBalanceList(sheet_id, b))
   }
   window.localStorage.setItem(CACHE_ID_LAST_ADDED_COST_SHEET_ID, sheet_id);
   const sheet_name = getOptionText(sheet_select, sheet_id);
