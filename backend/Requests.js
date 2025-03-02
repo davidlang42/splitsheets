@@ -37,7 +37,7 @@ function createSheet(name) {
   return listSheets();
 }
 
-// append a new cost row to the given sheet, then return the balances as {alias: owed}
+// append a new cost row to the given sheet, then return the balances as {email: owed}
 function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
   var sheet = openSheet(sheet_id);
   const this_user = Session.getActiveUser().getEmail();
@@ -61,7 +61,7 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) 
   return listBalances(sheet_id, sheet);
 }
 
-// return balances from a given sheet as {alias: owed}
+// return balances from a given sheet as {email: owed}
 function listBalances(sheet_id, _sheet_already_open) {
   var sheet = _sheet_already_open ?? openSheet(sheet_id);
   var balances = sheet.getSheetByName(BALANCES_SHEET);
@@ -70,18 +70,12 @@ function listBalances(sheet_id, _sheet_already_open) {
   if (!headers) throw new Error(BALANCES_SHEET + " does not contain a header row");
   var c_person = findColumn(headers, PERSON_COLUMN);
   var c_owed = findColumn(headers, OWED_COLUMN);
-  var users = listUsers(sheet_id);
   var result = {};
   for (var i = 1; i < values.length; i++) {
     const row = values[i];
     const email = row[c_person];
     if (email) {
-      const alias = users[email];
-      if (alias) {
-        result[alias] = row[c_owed];
-      } else {
-        result[email] = row[c_owed];
-      }
+      result[email] = row[c_owed];
     }
   }
   return {
