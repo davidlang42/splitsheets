@@ -28,6 +28,8 @@ function doGet(e) {
         return apiFrame(id, () => createSheet(p[0]));
       case "addCost":
         return apiFrame(id, () => addCost(p[0], p[1], p[2], p[3], p[4], p[5], p[6]));
+      case "moveAmounts":
+        return apiFrame(id, () => moveAmounts(p[0], p[1], p[2], p[3], p[4], p[5]));
       case "listBalances":
         return apiFrame(id, () => listBalances(p[0]));
       case "listUsers":
