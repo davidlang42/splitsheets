@@ -187,6 +187,7 @@ function viewBalancesWithoutUpdatingList(id, name) {
 function clearBalanceList(placeholder) {
   document.getElementById("balance_list").innerHTML = placeholder;
   document.getElementById("balance_last_updated").innerHTML = "";
+  document.getElementById("balance_moves").innerHTML = "";
 }
 
 function updateBalanceList(response) {
@@ -205,6 +206,45 @@ function updateBalanceList(response) {
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
+  api.listSheetsAndUsers((sheets_and_users) => updateBalanceMoves(balances, sheets_and_users));
+}
+
+function updateBalanceMoves(balances, sheets_and_users) {
+  let move_html = "";
+  for (const id of sortedKeysByValueName(sheets_and_users)) {
+    //TODO skip this sheet
+    const other_sheet = sheets_and_users[id];
+    const non_even_users = {};
+    let sum = 0;
+    let all_users_common = true;
+    for (const email in other_sheet.users) {
+      if (email in balances) {
+        const balance = Math.round(balances[email] * 100) / 100;
+        if (balance) {
+          sum += balance;
+          non_even_users[email] = balance;
+        }
+      } else {
+        all_users_common = false;
+        break;
+      }
+    }
+    if (all_users_common && non_even_users.length > 1) {
+      // all users of other_sheet are part of this sheet and at least 2 are not even
+      const combined_names = non_even_users.map((email) => other_sheet.users[email]).join("/");
+      move_html += "<p><input type=button value='Move " + combined_names + " debts to '" + other_sheet.name + "' onclick=''></p>";
+      //TODO handle click
+      // let result_person;
+      // if (sum > 0) {
+      //   // end result will be one person positive, so find the most positive person to leave positive
+      //   result_person = non_even_users.reduce((max, u) => max && non_even_users[max] > non_even_users[u] ? max : u, null);
+      // } else {
+      //   // end result will be one person negative, so find the most negative person to leave negative
+      //   result_person = non_even_users.reduce((min, u) => min && non_even_users[min] < non_even_users[u] ? min : u, null);
+      // }
+    }
+  }
+  document.getElementById("balance_moves").innerHTML = move_html;
 }
 
 // ui_add (cost)
