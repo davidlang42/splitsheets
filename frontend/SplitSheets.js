@@ -259,8 +259,25 @@ function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
 }
 
 function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts) {
+  if (!from_emails.length || !amounts.length || from_emails.length != amounts.length) {
+    throw new Error("Expected from_emails and amounts to be arrays of the same length");
+  }
   clearBalanceList("Moving debts...");
-  api.moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts, updateBalanceList)
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const date = now.toISOString().slice(0, 16);
+  let remaining_responses = amounts.length;
+  let latest_response = null;
+  var response_received = (balances) => {
+    latest_response = balances;
+    remaining_responses -= 1;
+    if (!remaining_responses) {
+      updateBalanceList(latest_response);
+    }
+  };
+  for (let i = 0; i < amounts.length; i++) {
+    api.moveAmount(date, from_sheet_id, to_sheet_id, from_emails[i], to_email, amounts[i], response_received);
+  }
 }
 
 // ui_add (cost)
