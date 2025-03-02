@@ -229,10 +229,10 @@ function updateBalanceMoves(balances, sheets_and_users) {
         break;
       }
     }
-    if (all_users_common && non_even_users.length > 1) {
+    if (all_users_common && Object.keys(non_even_users).length > 1) {
       // all users of other_sheet are part of this sheet and at least 2 are not even
-      const combined_names = non_even_users.map((email) => other_sheet.users[email]).join("/");
-      move_html += "<p><input type=button value='Move " + combined_names + " debts to '" + other_sheet.name + "' onclick=''></p>";
+      //TODO const combined_names = Object.keys(non_even_users).map((email) => other_sheet.users[email]).join("/");
+      move_html += "<p><button class='btn btn-sm btn-info' onclick=''>Move debts to " + quote(other_sheet.name) + "</button></p>";
       //TODO handle click
       // let result_person;
       // if (sum > 0) {
