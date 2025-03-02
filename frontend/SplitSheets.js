@@ -233,8 +233,6 @@ function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
     }
     if (all_users_common && Object.keys(non_even_users).length > 1) {
       // all users of other_sheet are part of this sheet and at least 2 are not even
-      
-      //TODO handle click
       let to_email;
       if (sum > 0) {
         // end result will be one person positive, so find the most positive person to leave positive
