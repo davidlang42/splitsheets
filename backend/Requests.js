@@ -50,18 +50,8 @@ function addCost(sheet_id, date, description, amount, paid_by, paid_for, split, 
   return listBalances(sheet_id, sheet);
 }
 
-// move amounts from one sheet to another, then return the balances of from_sheet_id as {email: owed}
-function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts) {
-  const date = new Date();//TODO
-  /*
-  var now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById("add_cost_date").value = now.toISOString().slice(0, 16);
-  */
-  // arg check
-  if (!from_emails.length || !amounts.length || from_emails.length != amounts.length) {
-    throw new Error("Expected from_emails and amounts to be arrays of the same length");
-  }
+// move an amount from one sheet to another, then return the balances of from_sheet_id as {email: owed}
+function moveAmount(date, from_sheet_id, to_sheet_id, from_email, to_email, amount) {
   // pre-check from sheet
   const from_sheet = openSheet(from_sheet_id);
   const from_sheet_name = from_sheet.getName();
@@ -79,17 +69,11 @@ function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts)
   const to_headers = to_costs.getSheetValues(1,1,1,-1)[0];
   if (!to_headers) throw new Error(to_sheet_name + "!" + COSTS_SHEET + " does not contain a header row");
   // create rows
-  const from_rows = [];
-  const to_rows = [];
-  for (let i = 0; i < amounts.length; i++) {
-    from_rows.push(createRow(from_headers, date, "Moved to " + to_sheet_name, amounts[i], from_emails[i], to_email, ""));
-    to_rows.push(createRow(to_headers, date, "Moved from " + from_sheet_name, amounts[i], to_email, from_emails[i], ""));
-  }
+  const from_row = createRow(from_headers, date, "Moved to " + to_sheet_name, amount, from_email, to_email, "");
+  const to_row = createRow(to_headers, date, "Moved from " + from_sheet_name, amount, to_email, from_email, "");
   // transact
-  for (let i = 0; i < amounts.length; i++) {
-    from_costs.appendRow(from_rows[i]);
-    to_costs.appendRow(to_rows[i]);
-  }
+  from_costs.appendRow(from_row);
+  to_costs.appendRow(to_row);
   // return balances of from
   return listBalances(from_sheet_id, from_sheet);
 }
