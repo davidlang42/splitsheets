@@ -60,7 +60,20 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
     document.body.appendChild(apiframe);
     apiframe.onload = function() {
       window.setTimeout(function() {
-        //TODO I think the race condition is that when a confirm() message blocks the JS thread, the next event after that is the timeout rather than the message, so the timeout consumes the callback, and says "the server didn't respond", then the already queued message comes through and assumes there will be a callback, but there isn't
+        //TODO The race condition here that's happening is:
+        // GOOD PATH (only 1 request)
+        // - we send a cacheable request with request id 'cache_id'
+        // - this sets a timeout to come back in 10 seconds
+        // - after 5s, a message is received, clearing the callback
+        // - 5s later the timeout comes back and checks if 'cache_id' has an outstanding callback
+        // - which it doesn't, because we already cleared it
+        // BAD PATH (2 requests of the same 'cache_id' one after another)
+        // - we send a cacheable request with request id 'cache_id'
+        // - this sets a timeout to come back in 10 seconds
+        // - after 5s, a message is received, clearing the callback
+        // - after 2s more, we query the make the same request again called 'cache_id'
+        // - 3s later the timeout comes back and checks if 'cache_id' has an outstanding callback
+        // - which it DOES, because we're re-registered the callback for the new request with the same id, but it SHOULDN'T
         if (consumeCallback(id)) {
           // No message was received
           if (auto_redirect_timeout) {
