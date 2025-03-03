@@ -69,6 +69,12 @@ function loadInitialViewFromQueryString() {
   }
 }
 
+function sortedKeysByValueName(obj) {
+  let keys = Object.keys(obj);
+  keys.sort((a, b) => obj[a].name.localeCompare(obj[b].name)); // assumes values are objects with a name string value
+  return keys;
+}
+
 function sortedKeysByValue(obj) {
   let keys = Object.keys(obj);
   keys.sort((a, b) => obj[a].localeCompare(obj[b])); // assumes values are strings
@@ -167,7 +173,16 @@ function addUser() {
 
 function viewBalances(id, name) {
   clearBalanceList("Loading balances...");
-  api.listBalances(id, updateBalanceList);
+  let balances = null;
+  let users = null;
+  api.listUsers(id, (u) => {
+    users = u;
+    if (balances) updateBalanceList(id, balances, users);
+  });
+  api.listBalances(id, (b) => {
+    balances = b;
+    if (users) updateBalanceList(id, balances, users);
+  });
   viewBalancesWithoutUpdatingList(id, name);
 }
 
@@ -181,14 +196,16 @@ function viewBalancesWithoutUpdatingList(id, name) {
 function clearBalanceList(placeholder) {
   document.getElementById("balance_list").innerHTML = placeholder;
   document.getElementById("balance_last_updated").innerHTML = "";
+  document.getElementById("balance_moves").innerHTML = "";
 }
 
-function updateBalanceList(response) {
+function updateBalanceList(sheet_id, response, users) {
   const balances = response.balances;
   let new_list = "";
-  for (const alias of sortedKeysByKey(balances)) {
-    let balance = balances[alias];
+  for (const email of sortedKeysByKey(balances)) {
+    let balance = balances[email];
     balance = Math.round(balance * 100) / 100;
+    const alias = users[email] ?? email;
     if (balance > 0) {
       new_list += "<li>" + alias + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
@@ -199,6 +216,97 @@ function updateBalanceList(response) {
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
+  api.listSheets((sheets) => {
+    delete sheets[sheet_id]; // dont offer to move to this sheet
+    let sheets_and_users = {};
+    for (const id in sheets) {
+      api.listUsers(id, (u) => {
+        sheets_and_users[id] = {
+          name: sheets[id],
+          users: u
+        };
+        if (Object.keys(sheets_and_users).length == Object.keys(sheets).length) {
+          updateBalanceMoves(sheet_id, balances, sheets_and_users);
+        }
+      });
+    }
+  });
+}
+
+function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
+  let move_html = "";
+  for (const other_id of sortedKeysByValueName(sheets_and_users)) {
+    if (other_id == sheet_id) {
+      continue; // dont offer to move to current sheet
+    }
+    const other_sheet = sheets_and_users[other_id];
+    const non_even_users = {};
+    let sum = 0;
+    let all_users_common = true;
+    for (const email in other_sheet.users) {
+      if (email in balances) {
+        const balance = Math.round(balances[email] * 100) / 100;
+        if (balance) {
+          sum += balance;
+          non_even_users[email] = balance;
+        }
+      } else {
+        all_users_common = false;
+        break;
+      }
+    }
+    if (all_users_common && Object.keys(non_even_users).length > 1) {
+      // all users of other_sheet are part of this sheet and at least 2 are not even
+      let to_email;
+      if (sum > 0) {
+        // end result will be one person positive, so find the most positive person to leave positive
+        to_email = Object.keys(non_even_users).reduce((max, u) => max && non_even_users[max] > non_even_users[u] ? max : u, null);
+      } else {
+        // end result will be one person negative, so find the most negative person to leave negative
+        to_email = Object.keys(non_even_users).reduce((min, u) => min && non_even_users[min] < non_even_users[u] ? min : u, null);
+      }
+      const quoted_from_emails = [];
+      const string_amounts = [];
+      for (const email in non_even_users) {
+        if (email != to_email) {
+          quoted_from_emails.push('"' + email + '"');
+          string_amounts.push(`${-non_even_users[email]}`);
+        }
+      }
+      const onclick_without_single_quotes = 'moveAmounts("' + sheet_id + '","' + other_id + '",[' + quoted_from_emails.join(",") + '],"' + to_email + '",[' + string_amounts.join(",") + '])';
+      move_html += "<p><button class='btn btn-sm btn-info' onclick='" + onclick_without_single_quotes + "'>Move debts to '" + other_sheet.name + "'</button></p>";
+    }
+  }
+  document.getElementById("balance_moves").innerHTML = move_html;
+}
+
+function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts) {
+  if (!from_emails.length || !amounts.length || from_emails.length != amounts.length) {
+    throw new Error("Expected from_emails and amounts to be arrays of the same length");
+  }
+  clearBalanceList("Moving debts...");
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const date = now.toISOString().slice(0, 16);
+  let remaining_responses = amounts.length;
+  let latest_balances = null;
+  let users = null;
+  api.listUsers(from_sheet_id, (u) => {
+    users = u;
+    if (!remaining_responses) {
+      updateBalanceList(from_sheet_id, latest_balances, users);
+    }
+  });
+  var balances_received = (balances) => {
+    latest_balances = balances;
+    remaining_responses -= 1;
+    if (!remaining_responses && users) {
+      updateBalanceList(from_sheet_id, latest_balances, users);
+    }
+  };
+  for (let i = 0; i < amounts.length; i++) {
+    api.moveAmount(date, from_sheet_id, to_sheet_id, from_emails[i], to_email, amounts[i], balances_received);
+  }
 }
 
 // ui_add (cost)
@@ -489,9 +597,11 @@ function addCost() {
   } else if (!description) {
     warning = "Are you sure you want to leave the " + transaction + " description blank?";
   }
+  let common_paid_for;
+  let common_split;
   if (is_expense) {
     // expense
-    let paid_for = [];
+    const paid_for = [];
     for (const e of document.getElementsByClassName("add_cost_for")) {
       if (e.checked) {
         paid_for.push(getEmailFromForCheckboxId(e.id));
@@ -505,7 +615,7 @@ function addCost() {
       alert("Please select more people this expense is for other than the person who paid.");
       return;
     }
-    let split = [];
+    const split = [];
     const is_percent = document.getElementById("add_cost_by_percent").checked;
     if (!document.getElementById("add_cost_even").checked) {
       let sum = 0;
@@ -524,11 +634,10 @@ function addCost() {
         return;
       }
     }
-    paid_for = paid_for.join(",");
-    split = split.join(is_percent ? "/" : ":");
+    common_paid_for = paid_for.join(",");
+    common_split = split.join(is_percent ? "/" : ":");
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding expense...");
-    api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, updateBalanceList)
   } else {
     // transfer
     const transfer_to = document.getElementById("add_cost_transfer_to").value;
@@ -540,10 +649,21 @@ function addCost() {
       alert("Please select different people for 'From' and 'To'.");
       return;
     }
+    common_paid_for = transfer_to;
+    common_split = "";
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding transfer...");
-    api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", updateBalanceList)
   }
+  let users = null;
+  let balances = null;
+  api.listUsers(sheet_id, (u) => {
+    users = u;
+    if (balances) updateBalanceList(sheet_id, balances, users);
+  });
+  api.addCost(sheet_id, date, description, amount, paid_by, common_paid_for, common_split, (b) => {
+    balances = b;
+    if (users) updateBalanceList(sheet_id, balances, users);
+  });
   window.localStorage.setItem(CACHE_ID_LAST_ADDED_COST_SHEET_ID, sheet_id);
   const sheet_name = getOptionText(sheet_select, sheet_id);
   viewBalancesWithoutUpdatingList(sheet_id, sheet_name);

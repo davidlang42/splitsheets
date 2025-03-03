@@ -37,31 +37,48 @@ function createSheet(name) {
   return listSheets();
 }
 
-// append a new cost row to the given sheet, then return the balances as {alias: owed}
-function addCost(sheet_id, date, description, amount, paid_by, paid_for, split) {
-  var sheet = openSheet(sheet_id);
-  const this_user = Session.getActiveUser().getEmail();
-  const owner = sheet.getOwner().getEmail();
-  if (owner != this_user && !userListContains(sheet.getEditors(), this_user)) {
-    throw new Error("You don't have access to edit this sheet. Please contact " + owner + " for access.");
-  }
-  var costs = sheet.getSheetByName(COSTS_SHEET);
+// append a new cost row to the given sheet, then return the balances as {email: owed}
+function addCost(sheet_id, date, description, amount, paid_by, paid_for, split, _sheet_already_open) {
+  const sheet = _sheet_already_open ?? openSheet(sheet_id);
+  ensureEditAccess(sheet);
+  const costs = sheet.getSheetByName(COSTS_SHEET);
   if (!costs) throw new Error("Spreadsheet does not contain a sheet called '" + COSTS_SHEET + "'");
-  var headers = costs.getSheetValues(1,1,1,-1)[0];
+  const headers = costs.getSheetValues(1,1,1,-1)[0];
   if (!headers) throw new Error(COSTS_SHEET + " does not contain a header row");
-  var row = [];
-  row[findColumn(headers, DATE_COLUMN)] = date;
-  row[findColumn(headers, DESCRIPTION_COLUMN)] = description;
-  row[findColumn(headers, AMOUNT_COLUMN)] = amount;
-  row[findColumn(headers, PAID_BY_COLUMN)] = paid_by;
-  row[findColumn(headers, PAID_FOR_COLUMN)] = paid_for;
-  row[findColumn(headers, SPLIT_COLUMN)] = split;
-  costs.appendRow(row);
+  costs.appendRow(createRow(headers, date, description, amount, paid_by, paid_for, split));
   sendAddCostEmails(sheet_id, sheet.getName(), description, amount, paid_by, paid_for, split, listUsers(sheet_id));
   return listBalances(sheet_id, sheet);
 }
 
-// return balances from a given sheet as {alias: owed}
+// move an amount from one sheet to another, then return the balances of from_sheet_id as {email: owed}
+function moveAmount(date, from_sheet_id, to_sheet_id, from_email, to_email, amount) {
+  // pre-check from sheet
+  const from_sheet = openSheet(from_sheet_id);
+  const from_sheet_name = from_sheet.getName();
+  ensureEditAccess(from_sheet, from_sheet_name);
+  const from_costs = from_sheet.getSheetByName(COSTS_SHEET);
+  if (!from_costs) throw new Error("Spreadsheet '" + from_sheet_name + "' does not contain a sheet called '" + COSTS_SHEET + "'");
+  const from_headers = from_costs.getSheetValues(1,1,1,-1)[0];
+  if (!from_headers) throw new Error(from_sheet_name + "!" + COSTS_SHEET + " does not contain a header row");
+  // pre-check to sheet
+  const to_sheet = openSheet(to_sheet_id);
+  const to_sheet_name = to_sheet.getName();
+  ensureEditAccess(to_sheet, to_sheet_name);
+  const to_costs = to_sheet.getSheetByName(COSTS_SHEET);
+  if (!to_costs) throw new Error("Spreadsheet '" + to_sheet_name + "' does not contain a sheet called '" + COSTS_SHEET + "'");
+  const to_headers = to_costs.getSheetValues(1,1,1,-1)[0];
+  if (!to_headers) throw new Error(to_sheet_name + "!" + COSTS_SHEET + " does not contain a header row");
+  // create rows
+  const from_row = createRow(from_headers, date, "Moved to " + to_sheet_name, amount, from_email, to_email, "");
+  const to_row = createRow(to_headers, date, "Moved from " + from_sheet_name, amount, to_email, from_email, "");
+  // transact
+  from_costs.appendRow(from_row);
+  to_costs.appendRow(to_row);
+  // return balances of from
+  return listBalances(from_sheet_id, from_sheet);
+}
+
+// return balances from a given sheet as {email: owed}
 function listBalances(sheet_id, _sheet_already_open) {
   var sheet = _sheet_already_open ?? openSheet(sheet_id);
   var balances = sheet.getSheetByName(BALANCES_SHEET);
@@ -70,18 +87,12 @@ function listBalances(sheet_id, _sheet_already_open) {
   if (!headers) throw new Error(BALANCES_SHEET + " does not contain a header row");
   var c_person = findColumn(headers, PERSON_COLUMN);
   var c_owed = findColumn(headers, OWED_COLUMN);
-  var users = listUsers(sheet_id);
   var result = {};
   for (var i = 1; i < values.length; i++) {
     const row = values[i];
     const email = row[c_person];
     if (email) {
-      const alias = users[email];
-      if (alias) {
-        result[alias] = row[c_owed];
-      } else {
-        result[email] = row[c_owed];
-      }
+      result[email] = row[c_owed];
     }
   }
   return {
