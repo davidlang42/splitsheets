@@ -30,7 +30,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
     }
     const original_callback = callback;
     callback = function(r) {
-      const new_response = JSON.stringify(r);
+      const new_response = jsonStringifyInOrder(r);
       if (cached_response != new_response) {
         original_callback(r);
         window.localStorage.setItem(cache_id, new_response);
@@ -135,4 +135,12 @@ function deregisterTimeout(id) {
     requestTimeouts[id] = count - 1;
     return false; // more timeouts remain
   }
+}
+
+function jsonStringifyInOrder(obj) {
+  // https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
+  const all_keys = new Set();
+  JSON.stringify(obj, (k, v) => (all_keys.add(k), v)); // populate all_keys with the keys of all nested objects
+  const sorted_keys = Array.from(all_keys).sort(); // sort them all into one big long order
+  return JSON.stringify(obj, sorted_keys); // stringify with keys in that order
 }
