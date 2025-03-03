@@ -167,3 +167,16 @@ function removeUser(sheet_id, email) {
   sendUserAccessEmail(owner, 'remove', email, sheet_id, file.getName());
   return listUsers(sheet_id, file);
 }
+
+// returns known sheets as {id: {name, users}}
+function listSheetsAndUsers() {
+  var sheets = listSheets();
+  var result = {};
+  for (const id in sheets) {
+    result[id] = {
+      name: sheets[id],
+      users: listUsers(id)
+    };
+  }
+  return result;
+}

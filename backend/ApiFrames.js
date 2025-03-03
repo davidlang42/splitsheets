@@ -38,6 +38,8 @@ function doGet(e) {
         return apiFrame(id, () => addUser(p[0], p[1]));
       case "removeUser":
         return apiFrame(id, () => removeUser(p[0], p[1]));
+      case "listSheetsAndUsers":
+        return apiFrame(id, () => listSheetsAndUsers());
       default:
         return apiFrame(id, () => {
           throw new Error("Invalid request: " + e.parameter.r)
