@@ -230,8 +230,7 @@ function updateBalanceList(sheet_id, response, users) {
         }
       });
     }
-  })
-  //TODO build_frontend.sh
+  });
 }
 
 function updateBalanceMoves(sheet_id, balances, sheets_and_users) {
