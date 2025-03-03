@@ -173,7 +173,16 @@ function addUser() {
 
 function viewBalances(id, name) {
   clearBalanceList("Loading balances...");
-  api.listBalances(id, (b) => updateBalanceList(id, b));
+  let balances = null;
+  let users = null;
+  api.listUsers(id, (u) => {
+    users = u;
+    if (balances) updateBalanceList(id, balances, users);
+  });
+  api.listBalances(id, (b) => {
+    balances = b;
+    if (users) updateBalanceList(id, balances, users);
+  });
   viewBalancesWithoutUpdatingList(id, name);
 }
 
@@ -190,19 +199,19 @@ function clearBalanceList(placeholder) {
   document.getElementById("balance_moves").innerHTML = "";
 }
 
-function updateBalanceList(sheet_id, response) {
+function updateBalanceList(sheet_id, response, users) {
   const balances = response.balances;
   let new_list = "";
   for (const email of sortedKeysByKey(balances)) {
     let balance = balances[email];
     balance = Math.round(balance * 100) / 100;
-    //TODO look up alias with listUsers
+    const alias = users[email] ?? email;
     if (balance > 0) {
-      new_list += "<li>" + email + " is <span class='owed'>owed $" + balance + "</span></li>";
+      new_list += "<li>" + alias + " is <span class='owed'>owed $" + balance + "</span></li>";
     } else if (balance < 0) {
-      new_list += "<li>" + email + " <span class='owes'>owes $" + (-balance) + "</span></li>";
+      new_list += "<li>" + alias + " <span class='owes'>owes $" + (-balance) + "</span></li>";
     } else {
-      new_list += "<li>" + email + " is even</li>";
+      new_list += "<li>" + alias + " is even</li>";
     }
   }
   document.getElementById("balance_list").innerHTML = new_list;
@@ -268,16 +277,23 @@ function moveAmounts(from_sheet_id, to_sheet_id, from_emails, to_email, amounts)
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   const date = now.toISOString().slice(0, 16);
   let remaining_responses = amounts.length;
-  let latest_response = null;
-  var response_received = (balances) => {
-    latest_response = balances;
-    remaining_responses -= 1;
+  let latest_balances = null;
+  let users = null;
+  api.listUsers(from_sheet_id, (u) => {
+    users = u;
     if (!remaining_responses) {
-      updateBalanceList(from_sheet_id, latest_response);
+      updateBalanceList(from_sheet_id, latest_balances, users);
+    }
+  });
+  var balances_received = (balances) => {
+    latest_balances = balances;
+    remaining_responses -= 1;
+    if (!remaining_responses && users) {
+      updateBalanceList(from_sheet_id, latest_balances, users);
     }
   };
   for (let i = 0; i < amounts.length; i++) {
-    api.moveAmount(date, from_sheet_id, to_sheet_id, from_emails[i], to_email, amounts[i], response_received);
+    api.moveAmount(date, from_sheet_id, to_sheet_id, from_emails[i], to_email, amounts[i], balances_received);
   }
 }
 
@@ -569,9 +585,11 @@ function addCost() {
   } else if (!description) {
     warning = "Are you sure you want to leave the " + transaction + " description blank?";
   }
+  let common_paid_for;
+  let common_split;
   if (is_expense) {
     // expense
-    let paid_for = [];
+    const paid_for = [];
     for (const e of document.getElementsByClassName("add_cost_for")) {
       if (e.checked) {
         paid_for.push(getEmailFromForCheckboxId(e.id));
@@ -585,7 +603,7 @@ function addCost() {
       alert("Please select more people this expense is for other than the person who paid.");
       return;
     }
-    let split = [];
+    const split = [];
     const is_percent = document.getElementById("add_cost_by_percent").checked;
     if (!document.getElementById("add_cost_even").checked) {
       let sum = 0;
@@ -604,11 +622,10 @@ function addCost() {
         return;
       }
     }
-    paid_for = paid_for.join(",");
-    split = split.join(is_percent ? "/" : ":");
+    common_paid_for = paid_for.join(",");
+    common_split = split.join(is_percent ? "/" : ":");
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding expense...");
-    api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, (b) => updateBalanceList(sheet_id, b))
   } else {
     // transfer
     const transfer_to = document.getElementById("add_cost_transfer_to").value;
@@ -620,10 +637,21 @@ function addCost() {
       alert("Please select different people for 'From' and 'To'.");
       return;
     }
+    common_paid_for = transfer_to;
+    common_split = "";
     if (warning && !confirm(warning)) return;
     clearBalanceList("Adding transfer...");
-    api.addCost(sheet_id, date, description, amount, paid_by, transfer_to, "", (b) => updateBalanceList(sheet_id, b))
   }
+  let users = null;
+  let balances = null;
+  api.listUsers(sheet_id, (u) => {
+    users = u;
+    if (balances) updateBalanceList(sheet_id, balances, users);
+  });
+  api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, (b) => {
+    balances = b;
+    if (users) updateBalanceList(sheet_id, balances, users);
+  });
   window.localStorage.setItem(CACHE_ID_LAST_ADDED_COST_SHEET_ID, sheet_id);
   const sheet_name = getOptionText(sheet_select, sheet_id);
   viewBalancesWithoutUpdatingList(sheet_id, sheet_name);
