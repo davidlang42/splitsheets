@@ -48,8 +48,9 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
   if (existing_callback) {
     // tack on to the existing request
     requestCallbacks[id] = function(r) {
-        existing_callback(r);
-        callback(r);
+      const r_cloned = { ...r }; // in case a callback mutates its response
+      existing_callback(r_cloned);
+      callback(r);
     }
   } else {
     // send a new request
