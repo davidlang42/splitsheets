@@ -19,6 +19,7 @@ let api = {
 };
 
 const requestCallbacks = {}; // {id: callback}
+const requestTimeouts = {}; // {id: count}
 
 function sendRequest(request, parameters, callback, cache_id, auto_redirect_timeout) {
   if (cache_id && callback) {
@@ -58,33 +59,23 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
     apiframe.sandbox = "allow-scripts allow-same-origin"
     apiframe.className = "apiframe";
     document.body.appendChild(apiframe);
+    registerTimeout(id);
     apiframe.onload = function() {
       window.setTimeout(function() {
-        //TODO The race condition here that's happening is:
-        // GOOD PATH (only 1 request)
-        // - we send a cacheable request with request id 'cache_id'
-        // - this sets a timeout to come back in 10 seconds
-        // - after 5s, a message is received, clearing the callback
-        // - 5s later the timeout comes back and checks if 'cache_id' has an outstanding callback
-        // - which it doesn't, because we already cleared it
-        // BAD PATH (2 requests of the same 'cache_id' one after another)
-        // - we send a cacheable request with request id 'cache_id'
-        // - this sets a timeout to come back in 10 seconds
-        // - after 5s, a message is received, clearing the callback
-        // - after 2s more, we query the make the same request again called 'cache_id'
-        // - 3s later the timeout comes back and checks if 'cache_id' has an outstanding callback
-        // - which it DOES, because we're re-registered the callback for the new request with the same id, but it SHOULDN'T
-        if (consumeCallback(id)) {
-          // No message was received
-          if (auto_redirect_timeout) {
-            // Redirect to login
-            window.top.location.href = BACKEND_URL + "?a=" + auth_count;
-          } else if (confirm(`The server has not responded to the '${request}' request for 30s, would you like to reload the page?`)) {
-            // Reload the client
-            window.top.location.href = window.top.location.href.split('#')[0].split('?')[0];
-          } else {
-            // Console error
-            console.error(`No message received from ${id}, and user declined refresh`);
+        if (deregisterTimeout(id)) {
+          // This was the last timeout, so we should now check if any message has been received
+          if (consumeCallback(id)) {
+            // No message was received
+            if (auto_redirect_timeout) {
+              // Redirect to login
+              window.top.location.href = BACKEND_URL + "?a=" + auth_count;
+            } else if (confirm(`The server has not responded to the '${request}' request for 30s, would you like to reload the page?`)) {
+              // Reload the client
+              window.top.location.href = window.top.location.href.split('#')[0].split('?')[0];
+            } else {
+              // Console error
+              console.error(`No message received from ${id}, and user declined refresh`);
+            }
           }
         }
       }, auto_redirect_timeout ?? 30000); // allow 30s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
@@ -125,4 +116,23 @@ function consumeCallback(id) {
   const apiframe = document.getElementById(IFRAME_PREFIX + id);
   if (apiframe) apiframe.remove();
   return callback;
+}
+
+function registerTimeout(id) {
+  const count = requestTimeouts[id] ?? 0;
+  requestTimeouts[id] = count + 1;
+}
+
+function deregisterTimeout(id) {
+  let count = requestTimeouts[id];
+  if (!count) {
+    throw new Error("Tried to deregister non-existent timeout for id: " + id);
+  }
+  if (count == 1) {
+    delete requestTimeouts[id];
+    return true; // this was the last timeout
+  } else {
+    requestTimeouts[id] = count - 1;
+    return false; // more timeouts remain
+  }
 }
