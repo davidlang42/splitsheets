@@ -3,8 +3,11 @@ const IFRAME_PREFIX = "apiFrame_";
 
 let auth_count = new URLSearchParams(window.location.search).get('a') ?? 0;
 
+const MAX_LOGIN_SECONDS = 1; // we want to redirect quickly on page load if not logged in
+const MAX_REQUEST_SECONDS = 10; // should be overkill, but sometimes things are slow if multiple requests are running at once
+
 let api = {
-  login: (callback) => sendRequest('login', [], callback, 'login', 1000), // returns the email of the current user
+  login: (callback) => sendRequest('login', [], callback, 'login', MAX_LOGIN_SECONDS * 1000), // returns the email of the current user
   listSheets: (callback) => sendRequest('listSheets', [], callback, 'listSheets'), // returns known sheets as {id: name}
   addSheet: (sheet_id, name, callback) => sendRequest('addSheet', [sheet_id, name], callback), // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
   removeSheet: (sheet_id, callback) => sendRequest('removeSheet', [sheet_id], callback), // removes a sheet from the list of known sheets, and returns the updated list of sheets
@@ -69,7 +72,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
             if (auto_redirect_timeout) {
               // Redirect to login
               window.top.location.href = BACKEND_URL + "?a=" + auth_count;
-            } else if (confirm(`The server has not responded to the '${request}' request for 30s, would you like to reload the page?`)) {
+            } else if (confirm(`The server has not responded to the '${request}' request for ${MAX_REQUEST_SECONDS}s, would you like to reload the page?`)) {
               // Reload the client
               window.top.location.href = window.top.location.href.split('#')[0].split('?')[0];
             } else {
@@ -78,7 +81,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
             }
           }
         }
-      }, auto_redirect_timeout ?? 30000); // allow 30s to send message after frame loads (should be overkill, but sometimes things are slow if multiple requests are running at once)
+      }, auto_redirect_timeout ?? MAX_REQUEST_SECONDS * 1000); // allow time to send message after frame loads
     };
     apiframe.src = `${BACKEND_URL}?id=${id}&${query}`;
     console.log(`Request ${id}: ${query}`);
