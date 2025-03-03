@@ -60,6 +60,7 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
     document.body.appendChild(apiframe);
     apiframe.onload = function() {
       window.setTimeout(function() {
+        //TODO I think the race condition is that when a confirm() message blocks the JS thread, the next event after that is the timeout rather than the message, so the timeout consumes the callback, and says "the server didn't respond", then the already queued message comes through and assumes there will be a callback, but there isn't
         if (consumeCallback(id)) {
           // No message was received
           if (auto_redirect_timeout) {
@@ -83,16 +84,25 @@ function sendRequest(request, parameters, callback, cache_id, auto_redirect_time
 window.addEventListener('message', onMessage);
 
 function onMessage(e) {
-  auth_count = 0; // reset count if any request succeeds
+  const id = e.data.id;
+  if (!id) {
+    console.warn("Non-apiFrame message: " + JSON.stringify(e.data));
+    return;
+  }
+  const callback = consumeCallback(id);
+  if (!callback) {
+    console.error("Message for id '" + id + "' had no callback");
+    return;
+  }
+  auth_count = 0; // reset count if any request succeeds (even if the response is an error)
   if (e.data.response) {
-    console.log(`Response ${e.data.id}: ${JSON.stringify(e.data.response)}`);
-    consumeCallback(e.data.id)(e.data.response); //TODO race condition makes consumeCallback() not a return a function
+    console.log(`Response ${id}: ${JSON.stringify(e.data.response)}`);
+    callback(e.data.response);
   } else if (e.data.error) {
-    console.error(`Error ${e.data.id}: ${JSON.stringify(e.data.error)}`);
-    consumeCallback(e.data.id);
+    console.error(`Error ${id}: ${JSON.stringify(e.data.error)}`);
     alert('Error: ' + e.data.error);
   } else {
-    console.warn("Invalid message: " + JSON.stringify(e.data));
+    console.error("Invalid apiFrame message: " + JSON.stringify(e.data));
   }
 }
 
