@@ -216,7 +216,7 @@ function updateBalanceList(sheet_id, response, users) {
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
-  //TODO remove listSheetsAndUsers because its too slow, also reduce 30s back to 10s
+  //TODO reduce 30s back to 10s
   api.listSheets((sheets) => {
     delete sheets[sheet_id]; // dont offer to move to this sheet
     let sheets_and_users = {};
