@@ -216,8 +216,22 @@ function updateBalanceList(sheet_id, response, users) {
   }
   document.getElementById("balance_list").innerHTML = new_list;
   document.getElementById("balance_last_updated").innerHTML = "Last updated: " + response.last_updated;
-  //TODO remove listSheetsAndUsers because its too slow, also reduce 30s back to 10s, instead stockpile results and run once when finished
-  api.listSheetsAndUsers((sheets_and_users) => updateBalanceMoves(sheet_id, balances, sheets_and_users));
+  //TODO remove listSheetsAndUsers because its too slow, also reduce 30s back to 10s
+  api.listSheets((sheets) => {
+    delete sheets[sheet_id]; // dont offer to move to this sheet
+    let sheets_and_users = {};
+    for (const id in sheets) {
+      api.listUsers(id, (u) => {
+        sheets_and_users[id] = {
+          name: sheets[id],
+          users: u
+        };
+        if (Object.keys(sheets_and_users).length == Object.keys(sheets).length) {
+          updateBalanceMoves(sheet_id, balances, sheets_and_users);
+        }
+      });
+    }
+  })
   //TODO build_frontend.sh
 }
 
@@ -648,7 +662,7 @@ function addCost() {
     users = u;
     if (balances) updateBalanceList(sheet_id, balances, users);
   });
-  api.addCost(sheet_id, date, description, amount, paid_by, paid_for, split, (b) => {
+  api.addCost(sheet_id, date, description, amount, paid_by, common_paid_for, common_split, (b) => {
     balances = b;
     if (users) updateBalanceList(sheet_id, balances, users);
   });

@@ -86,7 +86,7 @@ function onMessage(e) {
   auth_count = 0; // reset count if any request succeeds
   if (e.data.response) {
     console.log(`Response ${e.data.id}: ${JSON.stringify(e.data.response)}`);
-    consumeCallback(e.data.id)(e.data.response);
+    consumeCallback(e.data.id)(e.data.response); //TODO race condition makes consumeCallback() not a return a function
   } else if (e.data.error) {
     console.error(`Error ${e.data.id}: ${JSON.stringify(e.data.error)}`);
     consumeCallback(e.data.id);
