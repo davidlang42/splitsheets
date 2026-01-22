@@ -6,3 +6,4 @@ cp frontend/ApiFrames.js docs/ApiFrames.js
 #TODO: also consider common/long code like document.getElementById
 npx minify frontend/SplitSheets.css > docs/SplitSheets.css
 npx minify frontend/index.html > docs/index.html
+npx minify frontend/direct.html > docs/direct.html
