@@ -19,7 +19,7 @@ A1:6=[Date,Description,Amount,Paid By,Paid For,Split]
 
 "Balances" sheet:
 A1:4=[Person,Total Paid By,Total Paid For,Owed]
-A2=sort(unique(transpose(split(join(",",_COSTS("Paid By"),_COSTS("Paid For")),",", false, false))))
+A2=sort(unique(transpose(split(join(",", unique(_COSTS("Paid By")), flatten(ARRAYFORMULA(if(unique(_COSTS("Paid For"))<>"",split(unique(_COSTS("Paid For")),","),"")))),",", false, false))))
 B2(:B)=IF($A2="", "", SUMIF(_COSTS("Paid By"),$A2,_COSTS("Amount")))
 D2(:D)=IF($A2="", "", B2-C2)
 

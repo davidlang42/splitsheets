@@ -1,0 +1,20 @@
+<script>
+  // SPECIFICATION (`api`) MUST BE KEPT IN SYNC WITH frontend/ApiFrames.js
+  let api = {
+    login: (callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).login(), // returns the email of the current user
+    listSheets: (callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).listSheets(), // returns known sheets as {id: name}
+    addSheet: (sheet_id, name, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).addSheet(sheet_id, name), // adds or renames a sheet to the list of known sheets, if no name is provided it will open the spreadsheet and get its actual name, then returns the updated list of sheets
+    removeSheet: (sheet_id, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).removeSheet(sheet_id), // removes a sheet from the list of known sheets, and returns the updated list of sheets
+    createSheet: (name, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).createSheet(name), // creates a new sheet from the template, adds it to the list of known sheets, and returns the updated list of sheets
+    addCost: (sheet_id, date, description, amount, paid_by, paid_for, split, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).addCost(sheet_id, date, description, amount, paid_by, paid_for, split), // append a new cost row to the given sheet, then return the balances as {email: owed}
+    moveAmount: (date, from_sheet_id, to_sheet_id, from_email, to_email, amount, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).moveAmount(date, from_sheet_id, to_sheet_id, from_email, to_email, amount), // move an amount from one sheet to another, then return the balances of from_sheet_id as {email: owed}
+    listBalances: (sheet_id, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).listBalances(sheet_id), // return balances from a given sheet as {email: owed}
+    listUsers: (sheet_id, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).listUsers(sheet_id), // return users for a given sheet as {email: alias}
+    addUser: (sheet_id, email, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).addUser(sheet_id, email), // add a user to the given sheet, then return users as {email: alias}
+    removeUser: (sheet_id, email, callback) => google.script.run.withSuccessHandler(callback).withFailureHandler(handleError).removeUser(sheet_id, email), // remove a user from the given sheet, then return users as {email: alias}
+  };
+
+  function handleError(e) {
+    alert('Error: ' + e.message);
+  }
+</script>

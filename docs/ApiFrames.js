@@ -6,6 +6,7 @@ let auth_count = new URLSearchParams(window.location.search).get('a') ?? 0;
 const MAX_LOGIN_SECONDS = 1; // we want to redirect quickly on page load if not logged in
 const MAX_REQUEST_SECONDS = 10; // should be overkill, but sometimes things are slow if multiple requests are running at once
 
+// SPECIFICATION (`api`) MUST BE KEPT IN SYNC WITH backend/Frontend-NoApiFrames.html
 let api = {
   login: (callback) => sendRequest('login', [], callback, 'login', MAX_LOGIN_SECONDS * 1000), // returns the email of the current user
   listSheets: (callback) => sendRequest('listSheets', [], callback, 'listSheets'), // returns known sheets as {id: name}

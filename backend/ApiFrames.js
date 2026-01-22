@@ -1,16 +1,23 @@
 const EXTERNAL_URL = "https://splitsheets.davidlang.net"
+const DIRECT_ACCESS_URL = EXTERNAL_URL + "/direct.html";
 const TARGET_ORIGIN = EXTERNAL_URL; // needs to be "*" to test locally, EXTERNAL_URL for production
 
 // Deployed as WebApp
 function doGet(e) {
   if (!e.parameter.r) {
-    // auth & redirect
-    let auth_count = parseInt(e.parameter.a);
-    if (isNaN(auth_count) || auth_count < 0) auth_count = 0;
-    auth_count += 1;
-    let warning = null;
-    if (auth_count > 1) warning = "Your browser appears to be have redirected back to the login page " + auth_count + " times, you may need to allow third-party cookies for SplitSheets to work.";
-    return redirect(EXTERNAL_URL + "?a=" + auth_count, warning, auth_count == 1);
+    if (!e.parameter.a) {
+      // serve frontend
+      return serveFrontend();
+    } else {
+      // auth & redirect
+      let auth_count = parseInt(e.parameter.a);
+      if (isNaN(auth_count) || auth_count < 0) auth_count = 0;
+      auth_count += 1;
+      let warning = null;
+      if (auth_count > 1) warning = "Your browser appears to be have redirected back to the login page " + auth_count + " times, you may need to allow third-party cookies for SplitSheets to work."
+      + "<br>Alternatively, <a href='" + DIRECT_ACCESS_URL + "' target='_top'>click here</a> to use the direct access version, which does not require cookies.";
+      return redirect(EXTERNAL_URL + "?a=" + auth_count, warning, auth_count == 1);
+    }
   } else {
     // apiFrame request
     let id = e.parameter.id;

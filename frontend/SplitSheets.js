@@ -1,3 +1,4 @@
+/* MUST BE KEPT IN SYNC WITH backend/Frontend-JS.html EXCEPT without <script> wrapper */
 let currentUser = null;
 
 function onLoad() {
