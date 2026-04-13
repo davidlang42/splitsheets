@@ -41,7 +41,7 @@ function openFile(id) {
 
 function userListContains(list, email) {
   for (const user of list) {
-    if (user.getEmail() == email) {
+    if (user.getEmail().toLowerCase() == email.toLowerCase()) {
       return true;
     }
   }
